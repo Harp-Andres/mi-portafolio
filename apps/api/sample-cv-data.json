@@ -8,7 +8,7 @@
     "bio": "Experienced SDET Senior with 8+ years in software testing and automation. Specialized in building robust test automation frameworks using TypeScript, Python, Playwright, and Selenium. Expert in CI/CD integration, API testing, and performance optimization. Proven track record of leading automation initiatives that reduced manual testing by 70% and improved test reliability. Passionate about creating maintainable, scalable test solutions.",
     "github": "https://github.com/Harp-Andres",
     "linkedin": "https://linkedin.com/in/harp-andres",
-    "portfolio": "https://Harp-Andres.github.io/MiPortafolio/"
+    "portfolio": "https://Harp-Andres.github.io/mi-portafolio/"
   },
   "skills": [
     {
@@ -426,12 +426,12 @@
     },
     {
       "id": "project3",
-      "name": "Portfolio Site (MiPortafolio)",
+      "name": "Portfolio Site (mi-portafolio)",
       "description": "Professional portfolio website showcasing projects, skills, and experience with automated document generation (DOCX, PDF, Excel).",
       "longDescription": "Modern portfolio platform built with React, TypeScript, and Vite. Features monorepo architecture with automated CV document generation in multiple formats. Includes responsive design, dark mode support, and performance optimization.",
       "technologies": ["React", "TypeScript", "Vite", "Tailwind CSS", "FastAPI", "Python", "GitHub Pages"],
-      "github": "https://github.com/Harp-Andres/MiPortafolio",
-      "link": "https://Harp-Andres.github.io/MiPortafolio/",
+      "github": "https://github.com/Harp-Andres/mi-portafolio",
+      "link": "https://Harp-Andres.github.io/mi-portafolio/",
       "highlights": [
         "Monorepo architecture with shared CV data",
         "Automated DOCX, PDF, Excel generation",
