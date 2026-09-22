@@ -24,7 +24,7 @@ export const Navigation = ({ onDownloadATS, onDownloadVisual }: NavProps) => {
     { label: 'Habilidades', sectionId: 'skills', isRoute: false },
     { label: 'Experiencia', sectionId: 'experience', isRoute: false },
     { label: 'Educacion', sectionId: 'education', isRoute: false },
-    { label: 'Proyectos', href: '/portafolio', isRoute: true },
+    { label: 'Proyectos', href: '/proyectos', isRoute: true },
   ]
 
   return (

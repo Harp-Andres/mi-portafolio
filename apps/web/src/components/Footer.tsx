@@ -25,7 +25,7 @@ export const Footer = () => {
               Explora los proyectos y casos de estudio de automatización que he desarrollado.
             </p>
             <Link
-              to="/portafolio"
+              to="/proyectos"
               className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-semibold transition-colors"
             >
               <FolderGit2 size={18} />
