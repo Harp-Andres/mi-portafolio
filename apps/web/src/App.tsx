@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { HashRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Navigation, Footer } from './components'
 import { Home, Portfolio } from './pages'
 import { downloadCV } from './utils/download-cv'
@@ -29,13 +29,13 @@ function App() {
   }
 
   return (
-    <HashRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <div className="min-h-screen bg-white">
         <Navigation onDownloadATS={handleDownloadATS} onDownloadVisual={handleDownloadVisual} />
         
         <Routes>
           <Route path="/" element={<Home onDownloadATS={handleDownloadATS} onDownloadVisual={handleDownloadVisual} />} />
-          <Route path="/portafolio" element={<Portfolio />} />
+          <Route path="/proyectos" element={<Portfolio />} />
         </Routes>
 
         <Footer />
@@ -51,7 +51,7 @@ function App() {
           </div>
         )}
       </div>
-    </HashRouter>
+    </BrowserRouter>
   )
 }
 

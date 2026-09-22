@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mportafolio-backend"
 version = "2.0.0"
-description = "MiPortafolio Backend - DOCX, PDF, and Excel generators"
+description = "mi-portafolio Backend - DOCX, PDF, and Excel generators"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "ISC"}
@@ -53,10 +53,10 @@ packages = ["mportafolio_backend"]
 "" = "src"
 
 [project.urls]
-Homepage = "https://github.com/Harp-Andres/MiPortafolio"
-Documentation = "https://github.com/Harp-Andres/MiPortafolio/wiki"
-Repository = "https://github.com/Harp-Andres/MiPortafolio.git"
-Issues = "https://github.com/Harp-Andres/MiPortafolio/issues"
+Homepage = "https://github.com/Harp-Andres/mi-portafolio"
+Documentation = "https://github.com/Harp-Andres/mi-portafolio/wiki"
+Repository = "https://github.com/Harp-Andres/mi-portafolio.git"
+Issues = "https://github.com/Harp-Andres/mi-portafolio/issues"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

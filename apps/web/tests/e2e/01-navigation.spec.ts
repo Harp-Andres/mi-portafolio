@@ -33,7 +33,7 @@ test.describe('Navigation E2E Tests', () => {
   test('should navigate to Projects section', async ({ page }) => {
     const nav = page.getByRole('navigation', { name: /navegacion principal/i })
     await nav.getByRole('link', { name: /proyectos/i }).click()
-    await expect(page).toHaveURL(/#\/portafolio/)
+    await expect(page).toHaveURL(/\/proyectos/)
     await expect(page.getByRole('heading', { level: 1, name: /portfolio de proyectos/i })).toBeVisible()
   })
 
