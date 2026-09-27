@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "maestro": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["--directory", "${workspaceFolder}/agent", "run", "python", "1_interface/mcp_server.py"],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "GITHUB_TOKEN": "${env:GITHUB_TOKEN}",
+        "GITHUB_REPO": "${env:GITHUB_REPO}"
+      }
+    }
+  }
+}

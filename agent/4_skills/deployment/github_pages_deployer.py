@@ -21,7 +21,7 @@ class GitHubPagesDeployer(BaseSkill):
         # Step 1: Build
         logger.info(f"[{self.SKILL_NAME}] Building web app...")
         build_result = self._run_command(
-            ["pnpm", "--filter", "web", "build"],
+            ["pnpm", "--filter", "@mportafolio/web", "build"],
             timeout=180,
             cwd=workspace,
         )
@@ -37,7 +37,7 @@ class GitHubPagesDeployer(BaseSkill):
 
         # Use gh-pages via pnpm if available, otherwise git push
         deploy_result = self._run_command(
-            ["pnpm", "--filter", "web", "deploy"],
+            ["pnpm", "--filter", "@mportafolio/web", "deploy"],
             timeout=120,
             cwd=workspace,
         )

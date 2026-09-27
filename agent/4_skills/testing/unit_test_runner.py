@@ -21,7 +21,7 @@ class UnitTestRunner(BaseSkill):
         web_dir = workspace / "apps" / "web"
         if web_dir.exists():
             result = self._run_command(
-                ["pnpm", "--filter", "web", "test", "--run"],
+                ["pnpm", "--filter", "@mportafolio/web", "exec", "vitest", "run"],
                 timeout=120,
                 cwd=workspace,
             )

@@ -5,7 +5,20 @@ alwaysApply: true
 
 # mi-portafolio agent system
 
-This repo's agent guidance lives in `.github/`, which Cursor doesn't load natively. Treat it as authoritative:
+This repo's agent guidance lives in `.github/`, which Cursor doesn't load natively. Treat it as authoritative.
+
+## Session start: maestro MCP first
+
+The `maestro` MCP server (`.cursor/mcp.json` → `agent/1_interface/mcp_server.py`) reads `.github/agents/*.agent.md`, so it is the live bridge to every agent. At the start of every chat in this repo, before editing:
+
+1. Call `maestro-context` (agents, workflows, key paths, `consistency_issues`).
+2. Call `maestro-plan` with the workflow that matches the task (`ci`, `test`, `deploy`, `portfolio-update`, `quality`, `full-pipeline`).
+3. Call `maestro-agent` with the owning agent (e.g. `portfolio-cv-manager` for CV work) and follow the returned instructions.
+4. Use the listed `skill-*` tools, re-checking failed or suspiciously fast results with the native `pnpm` commands.
+
+If the `maestro` tools are not available, tell the user to enable the server in Cursor Settings → MCP, then continue with the files below.
+
+## Sources
 
 1. `.github/copilot-instructions.md`: language (Spanish in chat, English in code/commits/branches), structure hygiene, security rules.
 2. `.github/agents/agent-master-portfolio.agent.md`: act as the master orchestrator. Pick the specialist for the task and read its `.github/agents/<name>.agent.md` before acting.
