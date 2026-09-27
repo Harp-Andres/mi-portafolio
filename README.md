@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 **Autor:** Andrés Rodríguez Pisa | **SDET Senior | QA Automation Engineer**  
-**Versión:** 2.0.0 (React Router + Portfolio Projects) | **[🌐 Live Demo](https://harp-andres.github.io/MiPortafolio/)**
+**Versión:** 2.0.0 (React Router + Portfolio Projects) | **[🌐 Live Demo](https://harp-andres.github.io/mi-portafolio/)**
 
 ---
 
@@ -271,7 +271,7 @@ git push origin feat/rama
                         ↓
 ┌─────────────────────────────────────────────────────┐
 │ 10. Validar en Producción ✅                         │
-│     → https://harp-andres.github.io/MiPortafolio/ │
+│     → https://harp-andres.github.io/mi-portafolio/ │
 │     → Verificar cambios visibles                   │
 │     → Testing final responsivo                     │
 └─────────────────────────────────────────────────────┘
@@ -448,7 +448,7 @@ Documentado en `.github/workflows/`:
 ```yaml
 ✅ Build: npm run build
 ✅ Deploy: Push dist/ a gh-pages branch
-✅ URL: https://harp-andres.github.io/MiPortafolio/
+✅ URL: https://harp-andres.github.io/mi-portafolio/
 ```
 
 **Ver estado:** [Actions](https://github.com/Harp-Andres/MiPortafolio/actions)
@@ -513,7 +513,7 @@ Documentado en `.github/workflows/`:
 ### GitHub Pages
 ```
 Repositorio: https://github.com/Harp-Andres/MiPortafolio
-Live URL:    https://harp-andres.github.io/MiPortafolio/
+Live URL:    https://harp-andres.github.io/mi-portafolio/
 Branch:      main (automático)
 ```
 
@@ -526,7 +526,7 @@ Branch:      main (automático)
 ### Validar Deploy
 ```bash
 # 1. Abrir navegador
-https://harp-andres.github.io/MiPortafolio/
+https://harp-andres.github.io/mi-portafolio/
 
 # 2. Limpiar cache si no ve cambios
 Ctrl+Shift+R (Windows) o Cmd+Shift+R (Mac)
@@ -582,7 +582,7 @@ git push origin feat/rama
 # Merge cuando checks pasen ✅
 
 # Validar en producción
-https://harp-andres.github.io/MiPortafolio/
+https://harp-andres.github.io/mi-portafolio/
 ```
 
 ---
@@ -654,7 +654,7 @@ git push origin feat/add-puppeteer
 
 ## 📞 Contacto & Links
 
-- **Portfolio:** https://harp-andres.github.io/MiPortafolio/
+- **Portfolio:** https://harp-andres.github.io/mi-portafolio/
 - **LinkedIn:** [Andrés Rodríguez](https://linkedin.com/in/your-profile)
 - **GitHub:** [@Harp-Andres](https://github.com/Harp-Andres)
 - **Email:** andrés@example.com
@@ -711,7 +711,7 @@ Cada push a `main` o `develop` dispara:
 4. Build
 5. Deploy automático
 
-**URL:** https://Harp-Andres.github.io/MiPortafolio
+**URL:** https://harp-andres.github.io/mi-portafolio/
 
 ### Deploy Manual
 ```bash

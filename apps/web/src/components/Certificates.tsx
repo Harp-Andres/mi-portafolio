@@ -69,7 +69,7 @@ export const Certificates = ({ byCategory, learningPaths = [], officialCertifica
         {officialCertifications.length > 0 && (
           <div className="mb-16">
             <h3 className="text-2xl font-bold mb-8 text-gray-900">Certificaciones Oficiales</h3>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {officialCertifications.map((cert, index) => (
                 <div
                   key={index}
@@ -130,12 +130,19 @@ export const Certificates = ({ byCategory, learningPaths = [], officialCertifica
 
         {/* CURSOS DE FORMACIÓN */}
         <div>
-          <h3 className="text-2xl font-bold mb-8 text-gray-900">Cursos de Formación</h3>
-          <div className="grid grid-cols-3 gap-4 auto-rows-fr">
+          <h3 className="text-2xl font-bold mb-4 text-gray-900">Cursos de Formación</h3>
+          <p className="md:hidden text-sm text-gray-500 mb-4 italic">
+            Desliza horizontalmente para ver cada categoría
+          </p>
+          <div
+            data-testid="courses-carousel"
+            className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-visible md:snap-none md:pb-0"
+          >
             {Object.entries(categories).map(([category, certs]) => (
               <div
                 key={category}
-                className={`border-l-4 rounded-lg p-6 min-h-56 flex flex-col ${categoryColors[category] || 'border-gray-300 bg-gray-50'}`}
+                data-testid="course-category-card"
+                className={`border-l-4 rounded-lg p-6 min-h-56 flex flex-col shrink-0 w-[85%] snap-center md:w-auto md:min-w-0 md:shrink ${categoryColors[category] || 'border-gray-300 bg-gray-50'}`}
               >
                 <div className="flex items-center gap-2 mb-4">
                   <span className="text-2xl">{categoryIcons[category] || '📌'}</span>

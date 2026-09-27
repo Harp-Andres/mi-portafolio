@@ -34,15 +34,15 @@ export const Navigation = ({ onDownloadATS, onDownloadVisual }: NavProps) => {
       isScrolled ? 'bg-black shadow-lg' : 'bg-black'
     }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16 gap-2">
           
           {/* Logo */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 min-w-0">
             <Link
               to="/"
               aria-label="Ir al inicio"
-              className="text-white font-bold text-xl"
+              className="text-white font-bold text-lg sm:text-xl"
               onClick={() => window.scrollTo({ top: 0, behavior: 'auto' })}
             >
               INICIO
@@ -79,13 +79,13 @@ export const Navigation = ({ onDownloadATS, onDownloadVisual }: NavProps) => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex-shrink-0">
             <button
               onClick={toggleMenu}
               aria-label={isOpen ? 'Cerrar menu principal' : 'Abrir menu principal'}
               aria-expanded={isOpen}
               aria-controls="menu-principal-movil"
-              className="p-2 text-gray-300 hover:text-white"
+              className="min-h-11 min-w-11 flex-shrink-0 inline-flex items-center justify-center p-2 text-gray-300 hover:text-white"
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>

@@ -18,7 +18,7 @@ export default defineConfig({
     ['github']
   ],
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:5173/mi-portafolio/',
     trace: 'on-first-retry',
     screenshot: 'on',
     navigationTimeout: 10000, // 10 seconds for navigation
@@ -34,7 +34,7 @@ export default defineConfig({
 
   webServer: {
     command: 'pnpm dev',
-    url: 'http://localhost:5173',
+    url: 'http://localhost:5173/mi-portafolio/',
     timeout: 120000, // 120 seconds to start server
     reuseExistingServer: !process.env.CI,
   },

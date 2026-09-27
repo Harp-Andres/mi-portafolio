@@ -309,13 +309,13 @@ Después de merge a main:
 2. Vite build genera dist/
 3. GitHub Pages publica contenido
 4. Esperar 30-60 segundos
-5. Verificar https://harp-andres.github.io/MiPortafolio/
+5. Verificar https://harp-andres.github.io/mi-portafolio/
 ```
 
 #### Checklist Post-Deploy
 ```bash
 # 1. Abrir navegador
-https://harp-andres.github.io/MiPortafolio/
+https://harp-andres.github.io/mi-portafolio/
 
 # 2. Validar cambios se ven
 ✅ Datos actualizados

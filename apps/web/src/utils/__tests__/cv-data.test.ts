@@ -21,6 +21,10 @@ describe('CV Data Constants', () => {
     expect(CV_DATA.github).toBeTruthy()
   })
 
+  it('should use the renamed GitHub Pages portfolio URL', () => {
+    expect(CV_DATA.portfolio).toBe('https://harp-andres.github.io/mi-portafolio/')
+  })
+
   it('should have non-empty profile description', () => {
     expect(typeof CV_DATA.bio === 'string' || typeof CV_DATA.profile === 'string').toBe(true)
   })

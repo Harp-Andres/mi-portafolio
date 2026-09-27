@@ -45,9 +45,9 @@ describe('About Component', () => {
   })
 
   it('should display portfolio link when provided', () => {
-    render(<About {...mockProps} portfolio="https://Harp-Andres.github.io/MiPortafolio" />)
-    const portfolioLink = screen.getByText('Harp-Andres.github.io/MiPortafolio')
-    expect(portfolioLink).toHaveAttribute('href', 'https://Harp-Andres.github.io/MiPortafolio')
+    render(<About {...mockProps} portfolio="https://harp-andres.github.io/mi-portafolio/" />)
+    const portfolioLink = screen.getByText('harp-andres.github.io/mi-portafolio/')
+    expect(portfolioLink).toHaveAttribute('href', 'https://harp-andres.github.io/mi-portafolio/')
     expect(portfolioLink).toHaveAttribute('target', '_blank')
   })
 

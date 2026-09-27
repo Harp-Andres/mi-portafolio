@@ -56,7 +56,7 @@ DATA = {
     "email": "andresrdrgzps05@gmail.com",
     "linkedin": "linkedin.com/in/andresrodriguezpisa-qa/",
     "github": "github.com/Harp-Andres",
-    "portfolio": "https://Harp-Andres.github.io/MiPortafolio",
+    "portfolio": "https://harp-andres.github.io/mi-portafolio/",
     "profile": (
         "Ingeniero de Sistemas especializado en aseguramiento de calidad de software, con "
         "expertise en arquitectura de frameworks de automatización multiplataforma (Web, API, Mobile) "

@@ -23,7 +23,7 @@ const profileData = {
   bio: 'Ingeniero de Sistemas especializado en aseguramiento de calidad de software, con expertise en arquitectura de frameworks de automatización multiplataforma (Web, API, Mobile) y prácticas DevOps de clase empresarial. Sólida experiencia en diseño e implementación de estrategias QA con patrones avanzados (Screenplay, POM), CI/CD (GitHub Actions, GitLab CI, Jenkins, Azure DevOps), ecosistema Azure (Pipelines YAML, ACR, Blob Storage, Docker) y validación de servicios REST/SOAP con trazabilidad de calidad.',
   github: 'https://github.com/Harp-Andres',
   linkedin: 'https://www.linkedin.com/in/andresrodriguezpisa-qa/',
-  portfolio: 'https://Harp-Andres.github.io/MiPortafolio',
+  portfolio: 'https://harp-andres.github.io/mi-portafolio/',
 };
 
 export const CV_DATA: any = {
@@ -512,7 +512,7 @@ export const PROJECTS: Project[] = [
     longDescription: 'Modern professional portfolio built with React 19, TypeScript 7, and Vite 8. Features monorepo structure with core data package, automated document generation (DOCX/PDF/Excel), and master orchestrator agent for seamless synchronization across all platforms.',
     technologies: ['React 19', 'TypeScript 7', 'Vite 8', 'Tailwind CSS', 'Playwright', 'Vitest'],
     github: 'https://github.com/Harp-Andres/MiPortafolio',
-    link: 'https://Harp-Andres.github.io/MiPortafolio',
+    link: 'https://harp-andres.github.io/mi-portafolio/',
     highlights: [
       'Monorepo architecture with PNPM',
       '100% synchronized Web = PDF = DOCX = Excel',

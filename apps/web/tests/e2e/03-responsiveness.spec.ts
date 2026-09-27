@@ -2,7 +2,8 @@ import { test, expect, devices } from '@playwright/test'
 
 // Tests de responsiveness en múltiples dispositivos
 const viewports = [
-  { name: 'Mobile (iPhone 12)', width: devices['iPhone 12'].viewport.width, height: devices['iPhone 12'].viewport.height },
+  { name: 'Mobile (iPhone 12)', width: devices['iPhone 12'].viewport!.width, height: devices['iPhone 12'].viewport!.height },
+  { name: 'Mobile (Galaxy S24 compact)', width: 360, height: 780 },
   { name: 'Tablet (iPad)', width: 768, height: 1024 },
   { name: 'Desktop (1920x1080)', width: 1920, height: 1080 }
 ]
@@ -26,7 +27,7 @@ viewports.forEach((viewport) => {
     })
 
     test('should keep section navigation reachable', async ({ page }) => {
-      if (viewport.name.includes('iPhone')) {
+      if (viewport.name.includes('Mobile')) {
         await page.getByRole('button', { name: /abrir menu principal/i }).click()
       }
 
@@ -46,7 +47,7 @@ viewports.forEach((viewport) => {
     })
 
     test('should have proper touch targets on mobile', async ({ page }) => {
-      if (viewport.name.includes('iPhone')) {
+      if (viewport.name.includes('Mobile')) {
         const firstButton = page.getByRole('button', { name: /abrir menu principal/i })
         await expect(firstButton).toBeVisible()
 
@@ -61,12 +62,64 @@ viewports.forEach((viewport) => {
       const bodyWidth = await page.evaluate(() => document.body.scrollWidth)
       const windowWidth = await page.evaluate(() => window.innerWidth)
 
-      expect(bodyWidth).toBeLessThanOrEqual(windowWidth + 120)
+      // Strict on S24 compact; slight tolerance elsewhere for scrollbar math
+      const tolerance = viewport.width === 360 ? 1 : 120
+      expect(bodyWidth).toBeLessThanOrEqual(windowWidth + tolerance)
     })
 
     test('should render footer correctly', async ({ page }) => {
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
       await expect(page.getByRole('contentinfo')).toBeVisible()
     })
+  })
+})
+
+test.describe('Responsiveness - Galaxy S24 compact layout', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 780 })
+    await page.goto('/')
+  })
+
+  test('should keep hamburger fully inside the viewport', async ({ page }) => {
+    const hamburger = page.getByRole('button', { name: /abrir menu principal/i })
+    await expect(hamburger).toBeVisible()
+    const box = await hamburger.boundingBox()
+    expect(box).not.toBeNull()
+    expect(box!.x).toBeGreaterThanOrEqual(0)
+    expect(box!.x + box!.width).toBeLessThanOrEqual(360 + 1)
+    expect(box!.y).toBeGreaterThanOrEqual(0)
+  })
+
+  test('should show one primary course card in the mobile carousel', async ({ page }) => {
+    const carousel = page.getByTestId('courses-carousel')
+    await carousel.scrollIntoViewIfNeeded()
+    await expect(carousel).toBeVisible()
+
+    const cards = page.getByTestId('course-category-card')
+    await expect(cards.first()).toBeVisible()
+
+    const metrics = await page.evaluate(() => {
+      const track = document.querySelector('[data-testid="courses-carousel"]') as HTMLElement | null
+      const first = document.querySelector('[data-testid="course-category-card"]') as HTMLElement | null
+      if (!track || !first) return null
+      const trackBox = track.getBoundingClientRect()
+      const cardBox = first.getBoundingClientRect()
+      return {
+        viewportWidth: window.innerWidth,
+        cardWidth: cardBox.width,
+        cardVisibleRatio: cardBox.width / window.innerWidth,
+        cardsFullyInView: Array.from(
+          document.querySelectorAll('[data-testid="course-category-card"]')
+        ).filter((el) => {
+          const r = el.getBoundingClientRect()
+          return r.left >= trackBox.left - 2 && r.right <= trackBox.right + 2
+        }).length,
+      }
+    })
+
+    expect(metrics).not.toBeNull()
+    expect(metrics!.cardVisibleRatio).toBeGreaterThan(0.7)
+    expect(metrics!.cardVisibleRatio).toBeLessThan(0.95)
+    expect(metrics!.cardsFullyInView).toBe(1)
   })
 })

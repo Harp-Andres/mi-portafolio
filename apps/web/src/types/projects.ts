@@ -53,8 +53,8 @@ export const PROJECTS: Project[] = [
     description: 'Modern portfolio site with React 18, TypeScript, and comprehensive testing',
     longDescription: 'Full-stack portfolio application built with React 18 and TypeScript, featuring component-level testing with Vitest and E2E testing with Playwright. Demonstrates CI/CD practices with GitHub Actions and deployment to GitHub Pages.',
     technologies: ['React 18', 'TypeScript', 'Tailwind CSS', 'Vitest', 'Playwright', 'GitHub Actions', 'GitHub Pages'],
-    github: 'https://github.com/Harp-Andres/MiPortafolio',
-    link: 'https://harp-andres.github.io/MiPortafolio/',
+    github: 'https://github.com/Harp-Andres/mi-portafolio',
+    link: 'https://harp-andres.github.io/mi-portafolio/',
     highlights: [
       '65+ unit tests with 100% pass rate',
       '30+ E2E tests with Playwright',
