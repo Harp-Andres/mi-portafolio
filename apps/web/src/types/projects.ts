@@ -16,67 +16,159 @@ export interface Project {
   }
 }
 
+/** Kept in sync with packages/core PROJECTS (Portfolio page reads from @mportafolio/core). */
 export const PROJECTS: Project[] = [
   {
-    id: 'automation-test-reports-hub',
-    name: 'Automation Test Reports Hub',
-    description: 'Centralized CI/CD test reporting platform for multiple projects',
-    longDescription: 'Enterprise-grade centralized platform for aggregating test reports from multiple automation projects (Allure, Cucumber, Serenity). Integrated with GitHub Actions for automated report generation and distribution.',
-    technologies: ['GitHub Actions', 'Allure Reports', 'Cucumber', 'Serenity', 'CI/CD', 'DevOps'],
-    github: 'https://github.com/Harp-Andres/automation-test-reports-hub',
-    highlights: [
-      'Multi-project test report aggregation',
-      'Automated GitHub Actions integration',
-      'Allure, Cucumber & Serenity report support',
-      'Enterprise-scale reporting solution'
+    id: 'qa-playwright-ai-framework',
+    name: 'QA Playwright AI Framework',
+    description: 'Demo framework: Playwright + TypeScript for web & API, with AI-ready helpers',
+    longDescription:
+      'Showcase automation framework using Playwright and TypeScript (strict). Includes Page Object Model, API clients with local mocks for CI, Docker/K8s job examples, and an AI-ready layer for locator fallbacks and failure analysis. Built to demonstrate tooling and architecture—not a production product.',
+    technologies: [
+      'Playwright',
+      'TypeScript',
+      'GitHub Actions',
+      'Docker',
+      'Kubernetes',
+      'API Testing',
     ],
-    type: 'featured'
+    github: 'https://github.com/Harp-Andres/qa-playwright-ai-framework',
+    highlights: [
+      'Web + API test suites with stable CI mocks',
+      'POM with selectors separated from actions',
+      'CI/CD with GitHub Actions + Azure Pipelines examples',
+      'Docker Compose and Kubernetes Job packaging',
+    ],
+    type: 'featured',
   },
   {
-    id: 'buscar-cruceros',
-    name: 'Buscar Cruceros - E2E Automation',
-    description: 'Frontend automation with Playwright and JavaScript',
-    longDescription: 'End-to-end automation testing project demonstrating modern automation practices using Playwright. Includes comprehensive test scenarios for web-based cruise search and booking workflows.',
-    technologies: ['Playwright', 'JavaScript', 'E2E Testing', 'Web Automation', 'POM Pattern'],
-    github: 'https://github.com/Harp-Andres/Buscar_Cruceros',
-    highlights: [
-      'Playwright E2E automation framework',
-      'Page Object Model pattern',
-      'Cross-browser testing',
-      'Real-world application testing'
+    id: 'appium-mobile-cloud-automation-framework',
+    name: 'Appium Mobile Cloud Framework',
+    description: 'Demo mobile automation on cloud devices (BrowserStack) with Appium + Cucumber',
+    longDescription:
+      'Showcase mobile test framework designed for cloud device farms (BrowserStack and similar). Uses Appium, Cucumber/BDD, JUnit 5, Allure, and GitHub Actions to demonstrate Android/iOS automation patterns and reporting.',
+    technologies: [
+      'Appium',
+      'Java',
+      'Cucumber',
+      'JUnit 5',
+      'Allure',
+      'BrowserStack',
+      'GitHub Actions',
     ],
-    type: 'featured'
-  },
-  {
-    id: 'portfolio-site',
-    name: 'Professional Portfolio (This Site)',
-    description: 'Modern portfolio site with React 18, TypeScript, and comprehensive testing',
-    longDescription: 'Full-stack portfolio application built with React 18 and TypeScript, featuring component-level testing with Vitest and E2E testing with Playwright. Demonstrates CI/CD practices with GitHub Actions and deployment to GitHub Pages.',
-    technologies: ['React 18', 'TypeScript', 'Tailwind CSS', 'Vitest', 'Playwright', 'GitHub Actions', 'GitHub Pages'],
-    github: 'https://github.com/Harp-Andres/mi-portafolio',
-    link: 'https://harp-andres.github.io/mi-portafolio/',
+    github: 'https://github.com/Harp-Andres/appium-mobile-cloud-automation-framework',
     highlights: [
-      '65+ unit tests with 100% pass rate',
-      '30+ E2E tests with Playwright',
-      'Responsive design (mobile-first)',
-      'CI/CD pipeline with GitHub Actions',
-      'React components with TypeScript'
+      'Cloud device execution (Android & iOS)',
+      'BDD with Cucumber + Allure reports',
+      'CI workflows for BrowserStack runs',
+      'Local emulator config as fallback',
     ],
-    type: 'featured'
+    type: 'featured',
   },
   {
     id: 'literalura',
-    name: 'Literalura - Java Backend',
-    description: 'Full-stack application with Spring Boot, API integration & Database',
-    longDescription: 'Comprehensive Java application demonstrating backend development skills. Uses Spring Boot framework for REST API development, integrates external APIs, and implements database operations with proper error handling.',
-    technologies: ['Java', 'Spring Boot', 'REST APIs', 'Database', 'Exception Handling'],
+    name: 'Literalura - Spring Boot',
+    description: 'Demo backend: Spring Boot console app with API consumption, JPA and PostgreSQL',
+    longDescription:
+      'Java Spring Boot demo that consumes a literature API, maps DTOs to entities, and persists authors/books with Spring Data JPA and PostgreSQL. Shows backend skills: HTTP clients, deserialization, repositories, and layered structure—training/demo scope, not a production service.',
+    technologies: ['Java', 'Spring Boot', 'Spring Data JPA', 'PostgreSQL', 'REST APIs', 'Maven'],
     github: 'https://github.com/Harp-Andres/Literalura',
     highlights: [
-      'Spring Boot REST API development',
-      'External API integration',
-      'Database operations',
-      'Advanced exception handling'
+      'Spring Boot + JPA persistence',
+      'External REST API integration',
+      'DTO/entity mapping and repositories',
+      'Console-driven domain flows',
     ],
-    type: 'secondary'
-  }
+    type: 'featured',
+  },
+  {
+    id: 'typescript-playwright-cruise-search-e2e',
+    name: 'Cruise Search E2E (Playwright + TS)',
+    description: 'Demo E2E: data-driven cruise search with Playwright, TypeScript and layered POM',
+    longDescription:
+      'End-to-end demo that searches cruises across browsers using Playwright and TypeScript. Uses a layered Page Object structure and data-driven scenarios to show practical UI automation patterns.',
+    technologies: ['Playwright', 'TypeScript', 'E2E Testing', 'POM', 'Data-Driven Testing'],
+    github: 'https://github.com/Harp-Andres/typescript-playwright-cruise-search-e2e',
+    highlights: [
+      'Multi-browser Playwright runs',
+      'Layered POM architecture',
+      'Data-driven search scenarios',
+      'TypeScript-first test design',
+    ],
+    type: 'featured',
+  },
+  {
+    id: 'portfolio-site',
+    name: 'Mi Portafolio (This Site)',
+    description: 'Demo portfolio site: React, TypeScript, monorepo, tests and GitHub Pages',
+    longDescription:
+      'This portfolio is itself a showcase: React + TypeScript monorepo, Vitest/Playwright tests, CV document generation, and GitHub Actions deploy to GitHub Pages.',
+    technologies: [
+      'React',
+      'TypeScript',
+      'Vite',
+      'Tailwind CSS',
+      'Vitest',
+      'Playwright',
+      'GitHub Actions',
+      'GitHub Pages',
+    ],
+    github: 'https://github.com/Harp-Andres/mi-portafolio',
+    link: 'https://harp-andres.github.io/mi-portafolio/',
+    highlights: [
+      'Monorepo with shared core data',
+      'Unit + E2E test suites',
+      'CI/CD to GitHub Pages',
+      'Downloadable CV (PDF/DOCX)',
+    ],
+    type: 'featured',
+  },
+  {
+    id: 'java-serenity-screenplay-mobile',
+    name: 'Serenity Screenplay Mobile',
+    description: 'Demo: Java + Serenity Screenplay + Appium for Android/iOS',
+    longDescription:
+      'Mobile automation demo using Serenity BDD Screenplay with Appium and Gradle. Illustrates tasks, interactions, UI mappings, and multiplatform mobile flows.',
+    technologies: ['Java', 'Serenity BDD', 'Screenplay', 'Appium', 'Gradle', 'Cucumber'],
+    github:
+      'https://github.com/Harp-Andres/java-serenity-screenplay-automatizacion-movile-multiplataforma',
+    highlights: [
+      'Screenplay pattern on mobile',
+      'Appium Android/iOS setup',
+      'Serenity reporting',
+      'Gradle-based build',
+    ],
+    type: 'secondary',
+  },
+  {
+    id: 'appium-mobile-automation-framework',
+    name: 'Appium Mobile Framework (Local)',
+    description: 'Demo: Appium + Cucumber + JUnit 5 for local emulator automation',
+    longDescription:
+      'Companion mobile framework focused on local Appium execution (emulator/device), POM + BDD, Allure reports, and GitHub Actions—showcase of day-to-day mobile QA tooling.',
+    technologies: ['Appium', 'Java', 'Cucumber', 'JUnit 5', 'Allure', 'Maven'],
+    github: 'https://github.com/Harp-Andres/appium-mobile-automation-framework',
+    highlights: [
+      'Local Appium + emulator flows',
+      'Cucumber BDD + Allure',
+      'CI-ready GitHub Actions',
+      'POM structure for mobile screens',
+    ],
+    type: 'secondary',
+  },
+  {
+    id: 'automation-test-reports-hub',
+    name: 'Automation Test Reports Hub',
+    description: 'Demo hub concept: publish CI test reports (Allure/Cucumber/Serenity) via GitHub Pages',
+    longDescription:
+      'Public hub idea for centralizing CI/CD test reports from multiple automation projects. Currently a lightweight scaffold; useful as a DevOps/reporting showcase pointer.',
+    technologies: ['GitHub Actions', 'GitHub Pages', 'Allure', 'Cucumber', 'Serenity'],
+    github: 'https://github.com/Harp-Andres/automation-test-reports-hub',
+    highlights: [
+      'Central place for CI report links',
+      'Multi-framework reporting concept',
+      'GitHub Pages hosting',
+    ],
+    type: 'secondary',
+  },
 ]
