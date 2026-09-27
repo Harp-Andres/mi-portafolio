@@ -13,13 +13,13 @@ const source = join(repoRoot, 'cv', 'output')
 const target = join(repoRoot, 'apps', 'web', 'public', 'cv')
 
 if (!existsSync(source)) {
-  console.error(`[sync-cv] Missing ${source}. Run \`pnpm generate:cv\` first.`)
+  console.error(`[sync-cv] Missing ${source}. Run \`pnpm cv:generate\` first.`)
   process.exit(1)
 }
 
 const files = readdirSync(source).filter((name) => /\.(pdf|docx)$/i.test(name))
 if (files.length === 0) {
-  console.error('[sync-cv] cv/output has no PDF/DOCX files. Run `pnpm generate:cv` first.')
+  console.error('[sync-cv] cv/output has no PDF/DOCX files. Run `pnpm cv:generate` first.')
   process.exit(1)
 }
 
