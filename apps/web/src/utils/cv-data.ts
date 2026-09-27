@@ -8,7 +8,7 @@ export const CV_DATA = {
   location: 'Bogotá, Colombia',
   linkedin: 'https://www.linkedin.com/in/andresrodriguezpisa-qa/',
   github: 'https://github.com/Harp-Andres',
-  portfolio: 'https://Harp-Andres.github.io/MiPortafolio',
+  portfolio: 'https://harp-andres.github.io/mi-portafolio/',
   birthDate: '1993-04-05',
   
   profile: `Ingeniero de Sistemas especializado en aseguramiento de calidad de software, con expertise en arquitectura de frameworks de automatización multiplataforma (Web, API, Mobile) y prácticas DevOps de clase empresarial. Sólida experiencia en diseño e implementación de estrategias QA con patrones avanzados (Screenplay, POM), CI/CD (GitHub Actions, GitLab CI, Jenkins, Azure DevOps), ecosistema Azure (Pipelines YAML, ACR, Blob Storage, Docker) y validación de servicios REST/SOAP con trazabilidad de calidad. Liderazgo técnico demostrado en estandarización de prácticas QA, gobierno de automatización, arquitectura de frameworks mantenibles bajo principios SOLID, y capacitación continua de equipos. Activamente integro herramientas de IA (GitHub Copilot, MCP Playwright) para optimizar diseño de escenarios, refactorización y cobertura de pruebas. Enfoque senior en calidad continua, automatización inteligente, entrega de valor medible y cultura DevOps.`,

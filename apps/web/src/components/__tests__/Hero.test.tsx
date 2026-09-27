@@ -50,6 +50,29 @@ describe('Hero Component', () => {
     expect(animated).toBeInTheDocument()
   })
 
+  it('should use break-words and smaller mobile typography', () => {
+    render(
+      <Hero
+        name="ANDRES RODRIGUEZ PISA"
+        title="SDET | Senior QA Automation Engineer | API · Backend · Mobile · Web | Entornos DevOps | IA aplicada a QA"
+      />
+    )
+    const heading1 = screen.getByRole('heading', { level: 1 })
+    const heading2 = screen.getByRole('heading', { level: 2 })
+    expect(heading1).toHaveClass('break-words')
+    expect(heading1).toHaveClass('text-3xl')
+    expect(heading2).toHaveClass('break-words')
+    expect(heading2).toHaveClass('text-base')
+  })
+
+  it('should clip horizontal overflow on the section', () => {
+    const { container } = render(
+      <Hero name="John Doe" title="Senior QA Engineer" />
+    )
+    const section = container.querySelector('section')
+    expect(section).toHaveClass('overflow-x-clip')
+  })
+
   it('should have gradient background', () => {
     const { container } = render(
       <Hero 

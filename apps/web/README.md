@@ -136,7 +136,7 @@ Uses Tailwind CSS 4.0 with @import syntax:
 Automatically deployed to GitHub Pages on every commit to `main`:
 
 ```
-https://Harp-Andres.github.io/MiPortafolio
+https://harp-andres.github.io/mi-portafolio/
 ```
 
 Deployment is handled by `.github/workflows/deploy.yml`
@@ -146,7 +146,7 @@ Deployment is handled by `.github/workflows/deploy.yml`
 Create `.env.local`:
 
 ```env
-VITE_BASE_URL=/MiPortafolio/
+VITE_BASE_URL=/mi-portafolio/
 VITE_API_BASE=https://api.example.com
 ```
 

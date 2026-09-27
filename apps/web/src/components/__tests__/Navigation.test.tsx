@@ -5,7 +5,10 @@ import { HashRouter } from 'react-router-dom'
 import { Navigation } from '../Navigation'
 
 vi.mock('../hooks', () => ({
-  useScrollPosition: () => false
+  useScrollPosition: () => false,
+  useSectionNavigation: () => ({
+    goToSection: () => () => undefined,
+  }),
 }))
 
 const renderWithRouter = (component: React.ReactElement) => {
@@ -64,6 +67,19 @@ describe('Navigation Component', () => {
     fireEvent.click(menuButton)
     // After click, mobile menu should appear
     expect(screen.getAllByText('Sobre Mi').length).toBeGreaterThan(1)
+  })
+
+  it('should expose a 44px touch target on the hamburger button', () => {
+    renderWithRouter(
+      <Navigation
+        onDownloadATS={mockOnDownloadATS}
+        onDownloadVisual={mockOnDownloadVisual}
+      />
+    )
+    const menuButton = screen.getByRole('button', { name: /abrir menu principal/i })
+    expect(menuButton).toHaveClass('min-h-11')
+    expect(menuButton).toHaveClass('min-w-11')
+    expect(menuButton).toHaveClass('flex-shrink-0')
   })
 
   it('should be fixed position', () => {

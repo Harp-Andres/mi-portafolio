@@ -233,7 +233,7 @@ git checkout main
 git pull origin main
 
 # 9. Verificar deploy en GitHub Pages
-# https://harp-andres.github.io/MiPortafolio/
+# https://harp-andres.github.io/mi-portafolio/
 ```
 
 ### Ramas disponibles
@@ -293,7 +293,7 @@ Típicamente:
 ### Cuando usar
 - Publicar cambios a producción
 - Validar despliegue exitoso
-- URL pública: https://harp-andres.github.io/MiPortafolio/
+- URL pública: https://harp-andres.github.io/mi-portafolio/
 
 ### Deploy flow
 ```
@@ -308,7 +308,7 @@ Típicamente:
 ```bash
 # Esperar 60 segundos
 # Abrir navegador
-https://harp-andres.github.io/MiPortafolio/
+https://harp-andres.github.io/mi-portafolio/
 
 # Validar:
 ✅ Layout correcto
