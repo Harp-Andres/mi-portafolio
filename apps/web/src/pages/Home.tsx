@@ -8,6 +8,7 @@ import {
   Education,
   Certificates,
 } from '@/components'
+import { getCertificateLinks } from '@mportafolio/core'
 import { CV_DATA } from '@/utils/cv-data'
 
 interface HomeProps {
@@ -46,7 +47,7 @@ export const Home = (_props: HomeProps) => {
         byCategory={CV_DATA.certificatesByCategory}
         learningPaths={CV_DATA.learningPathsCertifications}
         officialCertifications={CV_DATA.officialCertifications}
-        items={CV_DATA.certificates}
+        items={getCertificateLinks()}
       />
     </main>
   )

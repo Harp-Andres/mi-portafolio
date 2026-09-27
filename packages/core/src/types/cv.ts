@@ -1,6 +1,6 @@
 /**
- * CV data contract. The editable source is cv/input/cv-data.json; Python validates it and
- * writes packages/core/src/data/cv-data.generated.json with this shape.
+ * CV data contract: the shape of cv/output/cv-data.json, written by the Python backend
+ * (apps/api/app/infrastructure/persistence/json_codec.py) together with the Word/PDF.
  */
 
 export interface SkillCategory {
@@ -64,7 +64,15 @@ export interface CVData {
   officialCertifications: OfficialCertification[];
   certificatesByCategory: Record<string, CourseCertificate[]>;
   learningPathsCertifications: CourseCertificate[];
-  /** Derived by Python: official + learning paths + courses, used by the certificates carousel. */
-  certificates: CertificateLink[];
   languages: Language[];
+}
+
+export type CVDocumentVariant = 'ats' | 'visual';
+export type CVDocumentFormat = 'pdf' | 'docx';
+
+/** A CV file rendered by the backend into cv/output and served by the web under /cv/. */
+export interface CVDocument {
+  variant: CVDocumentVariant;
+  format: CVDocumentFormat;
+  file: string;
 }

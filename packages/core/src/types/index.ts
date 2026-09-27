@@ -4,6 +4,9 @@
 
 export type {
   CVData,
+  CVDocument,
+  CVDocumentFormat,
+  CVDocumentVariant,
   CertificateLink,
   CourseCertificate,
   Education,

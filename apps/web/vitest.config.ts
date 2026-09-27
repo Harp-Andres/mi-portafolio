@@ -46,7 +46,6 @@ export default defineConfig({
       '@utils': path.resolve(__dirname, './src/utils'),
       '@hooks': path.resolve(__dirname, './src/hooks'),
       '@mportafolio/core': path.resolve(__dirname, '../../packages/core/src'),
-      '@mportafolio/api-client': path.resolve(__dirname, '../../packages/api-client/src'),
       '@mportafolio/ui': path.resolve(__dirname, '../../packages/ui/src'),
     }
   }

@@ -2,5 +2,13 @@
  * Data exports for @mportafolio/core
  */
 
-export { CV_DATA, getAllCertificates, getTotalCertificationHours } from './cv-data';
+export {
+  CV_DATA,
+  CV_DOCUMENTS,
+  CV_FINGERPRINT,
+  getAllCertificates,
+  getCertificateLinks,
+  getCvDocument,
+  getTotalCertificationHours,
+} from './cv-data';
 export { PROJECTS } from './projects';

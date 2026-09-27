@@ -24,8 +24,6 @@
       "@utils/*": ["./src/utils/*"],
       "@hooks": ["./src/hooks"],
       "@hooks/*": ["./src/hooks/*"],
-      "@mportafolio/api-client": ["../../packages/api-client/src"],
-      "@mportafolio/api-client/*": ["../../packages/api-client/src/*"],
       "@mportafolio/core": ["../../packages/core/src"],
       "@mportafolio/core/*": ["../../packages/core/src/*"],
       "@mportafolio/ui": ["../../packages/ui/src"],
