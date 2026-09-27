@@ -40,8 +40,9 @@ test.describe('Navigation E2E Tests', () => {
   })
 
   test('should redirect legacy /proyectos URL to /demos', async ({ page }) => {
-    await page.goto('/proyectos')
-    await expect(page).toHaveURL(/\/demos/)
+    await page.goto('proyectos')
+    await expect(page).toHaveURL(/\/mi-portafolio\/demos$/)
+    await expect(page.getByRole('heading', { level: 1, name: /demos t[eé]cnicas/i })).toBeVisible()
   })
 
   test('should navigate to Education section', async ({ page }) => {

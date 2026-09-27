@@ -196,6 +196,8 @@ Manage pull requests.
   ```
 - **Commit messages:** use repeated `-m` flags for the subject and each bullet instead of a multi-line string.
 - **Staging:** add files explicitly (`git add <paths>`); never `git add -A`, because runtime artifacts such as `agent/.checkpoints/` may be present.
+- **`--jq` filters:** PowerShell mangles `\(...)` string interpolation (`unknown command "\\(.headSha[0:7])"`). Use the default table output (`gh run list --branch <b> --limit 3`) or pipe `--json` into `ConvertFrom-Json`.
+- **Diagnosing CI:** `gh run view <id>` lists jobs/steps; `gh run view <id> --log-failed` shows the failing assertion.
 - **After opening a PR:** `gh pr checks <number>` shows CI plus the Cursor Bugbot review. A pending status is normal right after creation.
 
 ## Requirements
