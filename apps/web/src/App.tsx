@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { Navigation, Footer } from './components'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Navigation, Footer, ScrollToTop } from './components'
 import { Home, Portfolio } from './pages'
 import { downloadCV } from './utils/download-cv'
 import { useCopyClean } from './hooks/useCopyClean'
@@ -30,12 +30,14 @@ function App() {
 
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
+      <ScrollToTop />
       <div className="min-h-screen bg-white">
         <Navigation onDownloadATS={handleDownloadATS} onDownloadVisual={handleDownloadVisual} />
         
         <Routes>
           <Route path="/" element={<Home onDownloadATS={handleDownloadATS} onDownloadVisual={handleDownloadVisual} />} />
-          <Route path="/proyectos" element={<Portfolio />} />
+          <Route path="/demos" element={<Portfolio />} />
+          <Route path="/proyectos" element={<Navigate to="/demos" replace />} />
         </Routes>
 
         <Footer />

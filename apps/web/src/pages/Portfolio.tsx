@@ -13,7 +13,7 @@ export const Portfolio = () => {
       <section className="bg-gradient-to-br from-slate-900 to-slate-800 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 animate-slideUp">
-            Portfolio de Proyectos
+            Demos Técnicas
           </h1>
           <p className="text-xl text-slate-300 animate-slideUp" style={{ animationDelay: '0.1s' }}>
             Demos y frameworks que he manejado como SDET | QA Automation — no son productos productivos
@@ -35,7 +35,7 @@ export const Portfolio = () => {
       {/* Featured Projects */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold mb-12 text-gray-900">Proyectos Destacados</h2>
+          <h2 className="text-3xl font-bold mb-12 text-gray-900">Demos Destacadas</h2>
 
           <div className="grid gap-8 lg:grid-cols-1">
             {featuredProjects.map((project, index) => (
@@ -132,7 +132,7 @@ export const Portfolio = () => {
       {secondaryProjects.length > 0 && (
         <section className="py-16 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold mb-12 text-gray-900">Otros Proyectos</h2>
+            <h2 className="text-3xl font-bold mb-12 text-gray-900">Otras Demos</h2>
 
             <div className="grid gap-6 md:grid-cols-2">
               {secondaryProjects.map((project, index) => (

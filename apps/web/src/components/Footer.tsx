@@ -18,18 +18,18 @@ export const Footer = () => {
             </p>
           </div>
 
-          {/* Proyectos */}
+          {/* Demos Técnicas */}
           <div className="flex flex-col items-start">
-            <h4 className="text-lg font-semibold mb-4">Proyectos</h4>
+            <h4 className="text-lg font-semibold mb-4">Demos Técnicas</h4>
             <p className="text-gray-400 mb-4">
-              Explora los proyectos y casos de estudio de automatización que he desarrollado.
+              Explora los frameworks y demos de automatización que he desarrollado.
             </p>
             <Link
-              to="/proyectos"
+              to="/demos"
               className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-semibold transition-colors"
             >
               <FolderGit2 size={18} />
-              Ver Proyectos
+              Ver Demos
               <ArrowRight size={16} />
             </Link>
           </div>
