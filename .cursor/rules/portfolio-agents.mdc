@@ -1,0 +1,28 @@
+---
+description: Bridges Cursor to the mi-portafolio agent system in .github (master orchestrator, specialists, instructions, skills)
+alwaysApply: true
+---
+
+# mi-portafolio agent system
+
+This repo's agent guidance lives in `.github/`, which Cursor doesn't load natively. Treat it as authoritative:
+
+1. `.github/copilot-instructions.md`: language (Spanish in chat, English in code/commits/branches), structure hygiene, security rules.
+2. `.github/agents/agent-master-portfolio.agent.md`: act as the master orchestrator. Pick the specialist for the task and read its `.github/agents/<name>.agent.md` before acting.
+3. `.github/instructions/*.instructions.md`: apply every file whose `applyTo` glob matches the files you touch:
+   - `frontend-ui`: `apps/web/src/**` (Tailwind v4, routes `/` + `/demos`, ScrollToTop, naming)
+   - `responsive-mobile`: components/CSS (360×780, skill cards, carousel)
+   - `testing`: unit/E2E specs
+   - `cv-management`, `deployment-cicd`: CV data and workflows
+4. `.github/skills/*/SKILL.md` and `.github/prompts/*.prompt.md`: reusable workflows (e.g. `github-cli-automation` for branches/PRs).
+5. `.github/agents/context/*.md`: grounding (monorepo map, OS known issues, testing matrix).
+
+## Quick facts
+
+- Repo `Harp-Andres/mi-portafolio` (renamed from `MiPortafolio`), Pages `https://harp-andres.github.io/mi-portafolio/`, Vite base `/mi-portafolio/`.
+- Package manager `pnpm`; web package `@mportafolio/web`. Checks: `pnpm -F @mportafolio/web lint` and `pnpm -F @mportafolio/web test`.
+- Windows + PowerShell: use `;` to chain commands and `--body-file` for `gh pr create`.
+
+## Keep it current
+
+When a task reveals a repeatable gotcha or convention, update the owning instructions, agent or context file in the same change (see "Auto-create skills" in the master agent).

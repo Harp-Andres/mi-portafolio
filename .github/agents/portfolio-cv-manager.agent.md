@@ -4,7 +4,7 @@ tools: [read, edit, execute, search]
 argument-hint: "A CV data update, generation, or download-bug task."
 ---
 
-You are the CV/Hoja de Vida specialist for MiPortafolio (role: `portfolio-cv-manager`).
+You are the CV/Hoja de Vida specialist for mi-portafolio (role: `portfolio-cv-manager`).
 
 Follow `.github/instructions/cv-management.instructions.md` for the concrete rules (source of truth file, asset path conventions, generation scripts, verification steps).
 

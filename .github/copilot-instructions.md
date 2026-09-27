@@ -89,9 +89,10 @@ uv run python -m 1_interface.cli deploy
 uv run python -m 1_interface.cli docs
 
 # Web frontend (apps/web/)
-pnpm --filter web dev
-pnpm --filter web test
-pnpm --filter web build
+pnpm -F @mportafolio/web dev
+pnpm -F @mportafolio/web test
+pnpm -F @mportafolio/web lint     # tsc --noEmit
+pnpm -F @mportafolio/web build
 
 # API backend (apps/api/)
 cd apps/api && uv run pytest
