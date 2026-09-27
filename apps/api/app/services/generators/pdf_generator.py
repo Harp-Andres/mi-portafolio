@@ -49,7 +49,8 @@ class PDFGenerator:
         # Contact info
         contact_info = f"""
         Email: {profile.email} | Location: {profile.location}<br/>
-        GitHub: {profile.github} | LinkedIn: {profile.linkedin}
+        GitHub: {profile.github} | LinkedIn: {profile.linkedin}<br/>
+        Portfolio: {profile.portfolio}
         """
         self.story.append(Paragraph(contact_info, self.styles['Normal']))
         self.story.append(Spacer(1, 0.15*inch))
@@ -149,6 +150,19 @@ class PDFGenerator:
 
         self.story.append(Spacer(1, 0.1*inch))
 
+    def add_portfolio(self) -> None:
+        """Add portfolio section with public site URL"""
+        portfolio = getattr(self.cv_data.profile, "portfolio", None)
+        if not portfolio:
+            return
+
+        self.story.append(Paragraph("PORTFOLIO", self.styles['Heading2']))
+        self.story.append(Paragraph(
+            f"Website: {portfolio}",
+            self.styles['Normal']
+        ))
+        self.story.append(Spacer(1, 0.1*inch))
+
     def generate(self, output_path: Path) -> Path:
         """Generate complete PDF document"""
         self.add_header()
@@ -157,6 +171,7 @@ class PDFGenerator:
         self.add_experience()
         self.add_education()
         self.add_certificates()
+        self.add_portfolio()
 
         # Create PDF
         doc = SimpleDocTemplate(

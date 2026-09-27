@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Briefcase } from 'lucide-react'
+import { Mail, Phone, MapPin, Briefcase, Globe } from 'lucide-react'
 import { useAge } from '../hooks'
 
 interface AboutProps {
@@ -6,11 +6,12 @@ interface AboutProps {
   phone: string
   location: string
   linkedin: string
+  portfolio?: string
   birthDate: string
   about: string
 }
 
-export const About = ({ email, phone, location, linkedin, birthDate, about }: AboutProps) => {
+export const About = ({ email, phone, location, linkedin, portfolio, birthDate, about }: AboutProps) => {
   const age = useAge(birthDate)
 
   return (
@@ -78,6 +79,25 @@ export const About = ({ email, phone, location, linkedin, birthDate, about }: Ab
                   </a>
                 </div>
               </div>
+
+              {portfolio && (
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg">
+                    <Globe size={24} className="text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Portafolio</p>
+                    <a
+                      href={portfolio}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 font-medium hover:underline transition-colors break-all"
+                    >
+                      {portfolio.replace(/^https?:\/\//, '')}
+                    </a>
+                  </div>
+                </div>
+              )}
 
               <div className="pt-4 border-t">
                 <p className="text-sm text-gray-500">Edad</p>

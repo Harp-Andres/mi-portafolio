@@ -44,6 +44,13 @@ describe('About Component', () => {
     expect(screen.getByText(mockProps.location)).toBeInTheDocument()
   })
 
+  it('should display portfolio link when provided', () => {
+    render(<About {...mockProps} portfolio="https://Harp-Andres.github.io/MiPortafolio" />)
+    const portfolioLink = screen.getByText('Harp-Andres.github.io/MiPortafolio')
+    expect(portfolioLink).toHaveAttribute('href', 'https://Harp-Andres.github.io/MiPortafolio')
+    expect(portfolioLink).toHaveAttribute('target', '_blank')
+  })
+
   it('should display LinkedIn link with correct href', () => {
     render(<About {...mockProps} />)
     const linkedinLink = screen.getByText('Ver perfil')

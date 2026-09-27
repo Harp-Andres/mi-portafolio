@@ -48,8 +48,9 @@ build
 # Development Documentation (Local Only)
 .dev-docs
 
-# Maestro agent runtime artifacts
-agent/.checkpoints/
+# Generated CV export snapshot
+scripts/hv/cv-export-data.json
+
 agent/.state/
 agent/.venv/
 agent/*.log

@@ -34,7 +34,7 @@
     "sync:verify": "node scripts/verify-sync.js",
     "sync:validate": "pnpm run sync:verify",
     "format": "pnpm -F @mportafolio/web format",
-    "generate:cv": "pnpm -F @mportafolio/web generate:cv",
+    "generate:cv": "python3 scripts/hv/generate-cv-pdf.py",
     "deploy:web": "pnpm run build:web",
     "release": "pnpm run test:all && pnpm run sync:verify && pnpm run build:all"
   },

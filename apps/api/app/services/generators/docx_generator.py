@@ -74,6 +74,7 @@ class DocxGenerator:
             f"Location: {profile.location}",
             f"GitHub: {profile.github}",
             f"LinkedIn: {profile.linkedin}",
+            f"Portfolio: {profile.portfolio}",
         ]
         
         if profile.phone:
@@ -198,6 +199,19 @@ class DocxGenerator:
 
         self.doc.add_paragraph()  # Spacing
 
+    def generate_portfolio(self) -> None:
+        """Generate portfolio section"""
+        portfolio = getattr(self.cv_data.profile, "portfolio", None)
+        if not portfolio:
+            return
+
+        self._add_heading_line("PORTFOLIO")
+        p = self.doc.add_paragraph()
+        label = p.add_run("Website: ")
+        label.bold = True
+        p.add_run(portfolio)
+        self.doc.add_paragraph()
+
     def generate(self, output_path: Path) -> Path:
         """Generate complete DOCX document"""
         self.generate_header()
@@ -206,6 +220,7 @@ class DocxGenerator:
         self.generate_experience()
         self.generate_education()
         self.generate_certificates()
+        self.generate_portfolio()
 
         self.doc.save(str(output_path))
         return output_path

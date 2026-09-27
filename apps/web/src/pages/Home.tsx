@@ -35,6 +35,7 @@ export const Home = (_props: HomeProps) => {
         phone={`${CV_DATA.phone1} - ${CV_DATA.phone2}`}
         location={CV_DATA.location}
         linkedin={CV_DATA.linkedin}
+        portfolio={CV_DATA.portfolio}
         birthDate={CV_DATA.birthDate}
         about={CV_DATA.profile}
       />
