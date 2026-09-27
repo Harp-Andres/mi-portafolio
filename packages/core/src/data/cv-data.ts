@@ -431,7 +431,7 @@ export const CV_DATA: any = {
   certificatesByCategory: {
     'DevOps & Cloud': [
       { title: 'DevOps y Cloud con Azure DevOps, App Service Pipelines y Git — Udemy', filePath: '/certificados/Azure/Udemy/certificado-azure.jpg', hours: 21 },
-      { title: 'Docker Compose with Selenium — Udemy', filePath: null, hours: 3 },
+      { title: 'Docker Compose with Selenium — Udemy', filePath: '/certificados/Docker/certificado-docker.jpg', hours: 3 },
       { title: 'La Guía de Jenkins: De Cero a Experto — Udemy', filePath: '/certificados/Jenkins/Udemy/certificado-jenkins.jpg', hours: 32 },
     ],
     'Calidad & QA': [
