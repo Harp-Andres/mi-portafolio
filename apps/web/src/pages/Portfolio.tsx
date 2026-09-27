@@ -16,7 +16,7 @@ export const Portfolio = () => {
             Portfolio de Proyectos
           </h1>
           <p className="text-xl text-slate-300 animate-slideUp" style={{ animationDelay: '0.1s' }}>
-            Mis proyectos profesionales como SDET Senior | QA Automation Specialist
+            Demos y frameworks que he manejado como SDET | QA Automation — no son productos productivos
           </p>
           <div className="mt-4 flex gap-4 animate-slideUp" style={{ animationDelay: '0.2s' }}>
             <a
