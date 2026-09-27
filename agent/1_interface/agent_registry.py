@@ -28,10 +28,11 @@ SESSION_PROTOCOL: List[str] = [
 ]
 
 KEY_PATHS: Dict[str, str] = {
-    "cv_input": "cv/input/cv-data.json",
-    "cv_generator": "scripts/hv/generate-cv-pdf.py",
-    "cv_output": "cv/output/",
-    "cv_web_data": "packages/core/src/data/cv-data.generated.json",
+    "cv_requests": "cv/input/requests/ (.md/.txt change requests; applied ones go to cv/input/processed/)",
+    "cv_request_template": "cv/input/request-template.md",
+    "cv_backend": "apps/api (python -m app status|apply|generate)",
+    "cv_output": "cv/output/ (Word/PDF + cv-data.json, all stamped with the same fingerprint)",
+    "cv_web_data": "cv/output/cv-data.json (read by packages/core)",
     "cv_web_downloads": "apps/web/public/cv/ (synced from cv/output on dev/build)",
     "certificates": "apps/web/public/certificados/",
     "agents": ".github/agents/",
@@ -41,7 +42,7 @@ KEY_PATHS: Dict[str, str] = {
 }
 
 AGENT_EXTRA_TOOLS: Dict[str, List[str]] = {
-    "portfolio-cv-manager": ["cv-status", "cv-generate"],
+    "portfolio-cv-manager": ["cv-status", "cv-apply", "cv-generate"],
 }
 
 _FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n?(.*)$", re.DOTALL)

@@ -11,7 +11,7 @@ Documento de referencia rápida: **qué piezas agénticas existen, dónde viven,
 | A | **Instrucciones nativas de Copilot Chat** | `.github/copilot-instructions.md`, `.github/prompts/*.prompt.md` | Configuración *nativa* de VS Code/Copilot. Se carga **automáticamente** en cada sesión de chat de este repo. | ✅ Activa (es lo que me rige a mí ahora mismo) |
 | B | **Custom Agents de workspace** | `.github/agents/*.agent.md` (versionado en el repo) | Los **10 agentes especializados** (maestro + 9), seleccionables desde el picker de VS Code para cualquiera que abra este repo — no depende del perfil de cada persona. Reemplaza por completo al antiguo `.agent/AGENTS.md` (eliminado; era solo un YAML de referencia, no ejecutable). | ✅ Real y versionado |
 | C | **Skills genéricos por rol** | `.github/instructions/*.instructions.md` (auto-aplicados por `applyTo`), `.github/prompts/*.prompt.md` (`/nombre`) y `.github/skills/*/SKILL.md` (bundle de conocimiento + assets) | Implementación real y portable de los "skills" de cada agente especializado. Cada skill tiene un dueño (el agente cuyo dominio coincide) — ver sección 3. | ✅ Activa |
-| D | **Servidor Python "Maestro MCP"** | `agent/` (7 capas: `1_interface/` … `7_state/`), registrado en `.vscode/mcp.json`, `.cursor/mcp.json` y `.mcp.json` | Servidor MCP (SDK 2.x) conectado en ambas direcciones con B: lee `.github/agents/*.agent.md` y los expone como *prompts* + herramientas `maestro-context` / `maestro-agent`; cada agente declara `'maestro/*'` y arranca la sesión llamando `maestro-context`. Incluye `cv-status` / `cv-generate` para el flujo de la HV. | ✅ Activo (`agent/tests/test_agent_registry.py` vigila la consistencia agentes ↔ MCP) |
+| D | **Servidor Python "Maestro MCP"** | `agent/` (7 capas: `1_interface/` … `7_state/`), registrado en `.vscode/mcp.json`, `.cursor/mcp.json` y `.mcp.json` | Servidor MCP (SDK 2.x) conectado en ambas direcciones con B: lee `.github/agents/*.agent.md` y los expone como *prompts* + herramientas `maestro-context` / `maestro-agent`; cada agente declara `'maestro/*'` y arranca la sesión llamando `maestro-context`. Incluye `cv-status` / `cv-apply` / `cv-generate`, que delegan en el backend de la HV (`apps/api`). | ✅ Activo (`agent/tests/test_agent_registry.py` vigila la consistencia agentes ↔ MCP) |
 | E | **Modos de chat personalizados (perfil de usuario)** | `%APPDATA%\Code\User\prompts\*.agent.md` (tu perfil local, no está en el repo) | `agent.agent.md` y `portfolio-master-orchestrator.agent.md` siguen siendo plantillas vacías (opcional rellenarlas si quieres modos personales adicionales). | 🟡 Opcional/vacíos |
 
 ---
@@ -70,7 +70,7 @@ flowchart TD
     E1 -->|No y la tarea es costosa/repetible| CREATE["Propongo crear un nuevo skill"]
     APPLY --> DONE[Tarea resuelta]
     CREATE --> DONE
-    INVOKE --> MCP["Herramientas maestro del agente<br/>(skill-*, cv-status, cv-generate)"]
+    INVOKE --> MCP["Herramientas maestro del agente<br/>(skill-*, cv-status, cv-apply, cv-generate)"]
     MCP --> DONE
 ```
 
@@ -96,4 +96,4 @@ flowchart TD
 | D. Servidor MCP Maestro (`agent/`) | ✅ Sí — primer paso de cada sesión (`maestro-context`) |
 | E. `agent.agent.md` / `portfolio-master-orchestrator.agent.md` (perfil) | 🟡 Siguen vacíos (opcional) |
 
-**Limitación conocida:** varios skills Python de D siguen siendo *stubs* (p. ej. `sync_verifier`, `portfolio_updater`); por eso el protocolo exige verificar con comandos nativos cualquier resultado fallido o sospechosamente rápido. Los generadores falsos de PDF/DOCX/Excel se retiraron del MCP y los reemplazan `cv-status` / `cv-generate`, que ejecutan el pipeline real.
+**Limitación conocida:** varios skills Python de D siguen siendo *stubs* (p. ej. `sync_verifier`, `portfolio_updater`); por eso el protocolo exige verificar con comandos nativos cualquier resultado fallido o sospechosamente rápido. Los generadores falsos de PDF/DOCX/Excel se retiraron del MCP y los reemplazan `cv-status` / `cv-apply` / `cv-generate`, que ejecutan el backend real (`python -m app`).

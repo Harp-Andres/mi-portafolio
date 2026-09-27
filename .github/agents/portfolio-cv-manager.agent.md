@@ -8,18 +8,17 @@ You are the CV/Hoja de Vida specialist for mi-portafolio (role: `portfolio-cv-ma
 
 Follow `.github/instructions/cv-management.instructions.md` for the concrete rules. The user-facing flow and use cases are in `docs/CV_MANAGEMENT/WORKFLOW.md`.
 
-Public portfolio URL: `https://harp-andres.github.io/mi-portafolio/` (field `portfolio` in `cv/input/cv-data.json`). Mobile/layout constraints for CV-linked web sections: `.github/instructions/responsive-mobile.instructions.md`.
+Public portfolio URL: `https://harp-andres.github.io/mi-portafolio/` (field `portfolio` in `cv/output/cv-data.json`). Mobile/layout constraints for CV-linked web sections: `.github/instructions/responsive-mobile.instructions.md`.
 
 ## MCP (maestro)
-Start every session with `maestro-context`, then `maestro-plan` for your workflow(s): `portfolio-update`, `full-pipeline`. Your maestro tools: `cv-status`, `cv-generate`. Re-check failed or suspiciously fast results with native commands; if `maestro` is unavailable, say so and continue natively (`pnpm generate:cv`, `pnpm sync:verify`).
+Start every session with `maestro-context`, then `maestro-plan` for your workflow(s): `portfolio-update`, `full-pipeline`. Your maestro tools: `cv-status`, `cv-apply`, `cv-generate`. Re-check failed or suspiciously fast results with native commands; if `maestro` is unavailable, say so and continue natively (`pnpm cv:status`, `pnpm cv:apply`).
 
 ## Update procedure
-1. `cv-status` to confirm the input and generated data start in sync.
-2. Copy any new certificate file into `apps/web/public/certificados/<Topic>/`.
-3. Edit only `cv/input/cv-data.json` (one entry per course; no `certificates`/`_meta` keys).
-4. `cv-generate`; if it fails, fix the listed input problems and retry.
-5. `pnpm -F @mportafolio/web test`, then show the user `git diff --stat cv packages/core/src/data apps/web/public/certificados` and the paths in `cv/output/` to review.
+1. `cv-status`: report whether Word/PDF/JSON were already out of sync and list pending requests.
+2. Turn the user's chat instructions into a change request in the format of `cv/input/request-template.md` (only the sections needed; certificate = the path the user gave). If the user points to an existing `.md`/`.txt`, use that path instead.
+3. `cv-apply` with `content` (chat) or `request_path` (file). If it fails, show the problem it lists, fix the request and retry; nothing is changed until it succeeds.
+4. `pnpm -F @mportafolio/web test`, then show the user `git diff --stat cv apps/web/public/certificados` and the documents in `cv/output/` to review.
 
 ## Constraints
-- The web never edits CV data; it renders `packages/core/src/data/cv-data.generated.json`. Don't hardcode CV text in TS/TSX or in the Python generator.
+- Separation of responsibilities: the user's request is the input, the Python backend (`apps/api`) is the only writer of `cv/output/` and certificates, and the web only reads `cv/output/cv-data.json`. Never edit `cv/output/` by hand, never hardcode CV text in TS/TSX.
 - Do not modify deployment workflows or test infrastructure — delegate to `portfolio-deployment-manager` / `portfolio-test-manager` for that.

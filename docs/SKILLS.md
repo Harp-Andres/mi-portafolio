@@ -104,26 +104,28 @@ NO usar `@tailwind directives`, v4 usa `@import`
 ## Skill 3: CV Document Generation (PDF + DOCX)
 
 ### Cuando usar
-- Regenerar la HV (ATS y Visual, PDF y DOCX) después de editar `cv/input/cv-data.json`
+- Aplicar una solicitud de cambio (`.md`/`.txt`) y regenerar la HV (ATS y Visual, PDF y DOCX)
 - Cambiar el diseño de los documentos
 
-### Script de generación
+### Backend de la HV
 ```bash
 # Ubicación
-scripts/hv/generate-cv-pdf.py
+apps/api/app/   # dominio, casos de uso, parser, renderers (POO + SOLID)
 
-# Ejecutar (o herramienta MCP `cv-generate`)
-pnpm generate:cv
+# Aplicar solicitudes de cv/input/requests (o MCP `cv-apply`)
+pnpm cv:apply
+# Re-renderizar sin cambiar datos (o MCP `cv-generate`)
+pnpm cv:generate
 
 # Output
 cv/output/HV_2026_2_{ATS,Visual}_AndresRodriguez.{pdf,docx}
-packages/core/src/data/cv-data.generated.json
+cv/output/cv-data.json   # datos que muestra la web
 ```
 
 ### Librerías usadas
 - `reportlab`: PDF
 - `python-docx`: DOCX
-- Declaradas en la cabecera PEP 723 del script; `uv run` las instala. Flujo completo: `docs/CV_MANAGEMENT/WORKFLOW.md`.
+- Declaradas en `apps/api/pyproject.toml`; `uv run --project apps/api` las instala. Flujo completo: `docs/CV_MANAGEMENT/WORKFLOW.md`.
 
 ### Formato ATS
 - Texto simple, sin gráficos complejos

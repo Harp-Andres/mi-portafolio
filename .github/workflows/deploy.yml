@@ -2,9 +2,9 @@ name: Build & Deploy
 
 on:
   push:
-    branches: [ main, develop, refactor/*, fix/* ]
+    branches: [ main, develop, feat/*, refactor/*, fix/* ]
   pull_request:
-    branches: [ main, develop, refactor/*, fix/* ]
+    branches: [ main, develop, feat/*, refactor/*, fix/* ]
   workflow_dispatch:
 
 permissions:
@@ -97,6 +97,19 @@ jobs:
           path: apps/web/.vitest/
           retention-days: 7
 
+  # CV backend (apps/api): domain, request parser, use cases end-to-end on a sandbox, CLI and HTTP
+  test-backend:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Run backend tests
+        run: uv run --project apps/api --extra dev --extra api python -m pytest apps/api/tests -q
+
   # Runs in parallel with test-unit; Playwright itself shards its specs across 2 workers (see playwright.config.ts)
   test-e2e:
     timeout-minutes: 15
@@ -138,7 +151,7 @@ jobs:
           retention-days: 7
 
   build:
-    needs: [lint, test-unit, test-e2e]
+    needs: [lint, test-unit, test-backend, test-e2e]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -178,12 +191,12 @@ jobs:
 
   notify:
     if: always()
-    needs: [lint, test-unit, test-e2e, build]
+    needs: [lint, test-unit, test-backend, test-e2e, build]
     runs-on: ubuntu-latest
     steps:
       - name: Check workflow status
         run: |
-          if [ "${{ needs.lint.result }}" == "success" ] && [ "${{ needs.test-unit.result }}" == "success" ] && [ "${{ needs.test-e2e.result }}" == "success" ] && [ "${{ needs.build.result }}" == "success" ]; then
+          if [ "${{ needs.lint.result }}" == "success" ] && [ "${{ needs.test-unit.result }}" == "success" ] && [ "${{ needs.test-backend.result }}" == "success" ] && [ "${{ needs.test-e2e.result }}" == "success" ] && [ "${{ needs.build.result }}" == "success" ]; then
             echo "✅ Build & Tests PASSED - Ready for deployment!"
           else
             echo "❌ Build or Tests FAILED - Review logs"

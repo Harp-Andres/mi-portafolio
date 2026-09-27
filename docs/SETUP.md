@@ -19,13 +19,8 @@ cd MiPortafolio
 pnpm install
 ```
 
-### 3. Install Python Dependencies (Optional - for backend)
-```bash
-cd apps/api
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
+### 3. Python (only to change the CV)
+Install [uv](https://docs.astral.sh/uv/). The CV backend (`apps/api`) installs its own dependencies on first run.
 
 ## Development Environment Setup
 
@@ -41,13 +36,12 @@ pnpm -C apps/web test
 pnpm -C apps/web build
 ```
 
-### Backend Development
+### CV backend (from the repo root)
 ```bash
-# Start development server
-pnpm -C apps/api dev
-
-# Run tests
-pnpm -C apps/api test
+pnpm cv:status      # Word/PDF/JSON in sync? pending requests?
+pnpm cv:apply       # apply cv/input/requests/*.md|txt and regenerate the CV
+pnpm test:backend   # pytest
+pnpm dev:backend    # optional local HTTP API (docs/API.md)
 ```
 
 ### Agent Development (Python)
@@ -63,18 +57,7 @@ python -m agent.cli
 
 ## Environment Configuration
 
-### Frontend (.env.local in apps/web)
-```
-VITE_API_URL=http://localhost:8000
-VITE_ENVIRONMENT=development
-```
-
-### Backend (.env in apps/api)
-```
-DEBUG=True
-DATABASE_URL=sqlite:///./test.db
-CORS_ORIGINS=http://localhost:5173
-```
+The web and the CV backend need no environment variables.
 
 ### Agent (.env in agent/)
 ```
@@ -87,8 +70,8 @@ STORAGE_PATH=./data
 ```
 MiPortafolio/
 ├── apps/
-│   ├── web/                 # React frontend (Vite)
-│   └── api/                 # Python FastAPI backend
+│   ├── web/                 # React frontend (Vite): displays cv/output
+│   └── api/                 # Python CV backend: request → Word/PDF + cv-data.json
 ├── packages/
 │   ├── ui/                  # React UI components
 │   ├── core/                # Shared utilities

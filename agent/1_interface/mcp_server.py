@@ -113,6 +113,7 @@ LOCAL_HANDLERS = {
     "maestro-context": handle_maestro_context,
     "maestro-agent": handle_maestro_agent,
     "cv-status": cv_pipeline.cv_status,
+    "cv-apply": cv_pipeline.cv_apply,
     "cv-generate": cv_pipeline.cv_generate,
 }
 
@@ -145,26 +146,32 @@ def get_tools() -> list[Tool]:
         Tool(
             name="cv-status",
             description=(
-                "[CV] Check the CV pipeline: is cv/input/cv-data.json in sync with the generated web data, "
-                "which files exist in cv/output and whether web downloads are synced"
+                "[CV] CV backend status: are cv/output Word/PDF and cv-data.json (web data) rendered from the "
+                "same CV, and which change requests wait in cv/input/requests"
             ),
             inputSchema={"type": "object", "properties": {}},
         ),
         Tool(
-            name="cv-generate",
+            name="cv-apply",
             description=(
-                "[CV] Validate cv/input/cv-data.json (or another JSON with the same shape) and regenerate "
-                "cv/output/*.pdf|docx plus packages/core/src/data/cv-data.generated.json"
+                "[CV] Apply a CV change request with the Python backend and regenerate Word/PDF + web data. "
+                "Pass `content` (the .md request written from the user's chat instructions, format in "
+                "cv/input/request-template.md), or `request_path` (a .md/.txt the user points to). "
+                "With no arguments, applies every pending file in cv/input/requests."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "input_path": {
-                        "type": "string",
-                        "description": "Optional repo-relative JSON to use as the new cv/input/cv-data.json",
-                    }
+                    "content": {"type": "string", "description": "Request in the template format (## Curso, - titulo: ...)"},
+                    "filename": {"type": "string", "description": "Name for `content`, e.g. 2026-09-docker.md"},
+                    "request_path": {"type": "string", "description": "Repo-relative or absolute .md/.txt request"},
                 },
             },
+        ),
+        Tool(
+            name="cv-generate",
+            description="[CV] Re-render cv/output Word/PDF and cv-data.json from the current CV (no data changes)",
+            inputSchema={"type": "object", "properties": {}},
         ),
         Tool(
             name="maestro",
