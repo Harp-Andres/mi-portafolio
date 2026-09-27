@@ -1,11 +1,15 @@
 /// <reference types="vitest/globals" />
-import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { Certificates } from '../Certificates'
 
 const mockByCategory = {
   'DevOps & Cloud': [
-    { title: 'Docker Compose with Selenium', filePath: null, hours: 3 },
+    {
+      title: 'Azure DevOps — Udemy',
+      filePath: '/certificados/Azure/Udemy/certificado-azure.jpg',
+      hours: 21,
+    },
   ],
   'Calidad & QA': [
     { title: 'ISTQB Foundation', filePath: null, hours: 24 },
@@ -70,5 +74,43 @@ describe('Certificates Component', () => {
 
     const officialGrid = container.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2')
     expect(officialGrid).toBeInTheDocument()
+  })
+
+  describe('certificate downloads', () => {
+    beforeEach(() => {
+      ;(import.meta.env as { BASE_URL: string }).BASE_URL = '/mi-portafolio/'
+      vi.stubGlobal('URL', {
+        ...URL,
+        createObjectURL: vi.fn(() => 'blob:mock-cert'),
+        revokeObjectURL: vi.fn(),
+      })
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(async () => ({
+          ok: true,
+          status: 200,
+          blob: async () => new Blob(['fake-cert']),
+        }))
+      )
+    })
+
+    afterEach(() => {
+      vi.unstubAllGlobals()
+      vi.restoreAllMocks()
+    })
+
+    it('should fetch certificates under BASE_URL when clicked', async () => {
+      render(<Certificates byCategory={mockByCategory} />)
+      fireEvent.click(screen.getByRole('button', { name: /Azure DevOps — Udemy/i }))
+
+      await waitFor(() => {
+        expect(fetch).toHaveBeenCalledWith(
+          '/mi-portafolio/certificados/Azure/Udemy/certificado-azure.jpg'
+        )
+      })
+      await waitFor(() => {
+        expect(URL.createObjectURL).toHaveBeenCalled()
+      })
+    })
   })
 })

@@ -1,3 +1,5 @@
+import { publicAssetFilename, resolvePublicAssetUrl } from '../utils/public-asset'
+
 interface Certificate {
   title: string
   filePath: string | null
@@ -26,18 +28,37 @@ const isCertificateObject = (cert: unknown): cert is Certificate => {
   return typeof cert === 'object' && cert !== null && 'title' in cert
 }
 
+async function downloadPublicAsset(filePath: string): Promise<void> {
+  const url = resolvePublicAssetUrl(filePath)
+  const filename = publicAssetFilename(filePath)
+
+  try {
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(`Failed to download certificate: HTTP ${response.status}`)
+    }
+
+    const blob = await response.blob()
+    const objectUrl = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = objectUrl
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(objectUrl)
+  } catch {
+    // Fallback: open the asset under the correct base path
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+}
+
 export const Certificates = ({ byCategory, learningPaths = [], officialCertifications = [] }: CertificatesProps) => {
   const categories = byCategory || {}
   
   const handleDownload = (filePath: string | null) => {
     if (!filePath) return
-    // The file path is relative to public, so we can use it directly
-    const link = document.createElement('a')
-    link.href = filePath
-    link.download = filePath.split('/').pop() || 'certificado'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+    void downloadPublicAsset(filePath)
   }
 
   const categoryColors: { [key: string]: string } = {

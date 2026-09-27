@@ -102,7 +102,8 @@ export const CV_DATA = {
   certificatesByCategory: {
     'DevOps & Cloud': [
       { title: 'DevOps y Cloud con Azure DevOps, App Service Pipelines y Git — Udemy', filePath: '/certificados/Azure/Udemy/certificado-azure.jpg', hours: 21 },
-      { title: 'Docker Compose with Selenium — Udemy', filePath: '/certificados/Docker/certificado-docker.jpg', hours: 3 },
+      // filePath null until apps/web/public/certificados/Docker/certificado-docker.jpg is added
+      { title: 'Docker Compose with Selenium — Udemy', filePath: null, hours: 3 },
       { title: 'La Guía de Jenkins: De Cero a Experto — Udemy', filePath: '/certificados/Jenkins/Udemy/certificado-jenkins.jpg', hours: 32 },
     ],
     'Calidad & QA': [
@@ -157,7 +158,7 @@ export const CV_DATA = {
     { title: 'Master: Pruebas de Rendimiento con Apache JMeter — Udemy', filePath: '/certificados/Jmeter/Udemy/certificado-Jmeter.jpg' },
     { title: 'Master: Katalon Studio Test QA Automation — Udemy', filePath: '/certificados/Katalon/Udemy/certificado-katalon.jpg' },
     { title: 'Selenium WebDriver y Grid — Udemy', filePath: '/certificados/Selenium/Udemy/Certificado-Selenium.jpeg' },
-    { title: 'Docker Compose with Selenium — Udemy', filePath: '/certificados/Docker/certificado-docker.jpg' },
+    { title: 'Docker Compose with Selenium — Udemy', filePath: null },
     { title: 'DevOps y Cloud con Azure DevOps, App Service Pipelines y Git — Udemy', filePath: '/certificados/Azure/Udemy/certificado-azure.jpg' },
     { title: 'La Guía de Jenkins: De Cero a Experto — Udemy', filePath: '/certificados/Jenkins/Udemy/certificado-jenkins.jpg' },
     { title: 'ISTQB Certified Tester Foundation Level (CTFL 4.0) — Udemy', filePath: '/certificados/ISTQB/Udemy/certificado-ISTQB.jpg' },
