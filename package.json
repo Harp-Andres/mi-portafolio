@@ -31,16 +31,13 @@
     "test:all": "pnpm run test:web && pnpm run test:backend",
     "lint": "pnpm -F @mportafolio/web lint",
     "lint:all": "pnpm -r lint",
-    "sync:verify": "node scripts/verify-sync.js",
-    "sync:validate": "pnpm run sync:verify",
+    "sync:verify": "pnpm -F @mportafolio/web exec vitest run src/utils/__tests__/cv-pipeline.test.ts",
     "format": "pnpm -F @mportafolio/web format",
-    "generate:cv": "python3 scripts/hv/generate-cv-pdf.py",
+    "generate:cv": "uv run scripts/hv/generate-cv-pdf.py",
+    "sync:cv": "node scripts/hv/sync-cv-downloads.mjs",
     "deploy:web": "pnpm run build:web",
     "release": "pnpm run test:all && pnpm run sync:verify && pnpm run build:all"
   },
-  "workspaces": [
-    "packages/*"
-  ],
   "devDependencies": {
     "pnpm": "^9.0.0",
     "typescript": "^7.0.2"

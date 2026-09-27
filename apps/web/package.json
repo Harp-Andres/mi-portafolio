@@ -6,8 +6,8 @@
   "author": "Andrés Rodríguez Pisa",
   "license": "ISC",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "dev": "node ../../scripts/hv/sync-cv-downloads.mjs && vite",
+    "build": "node ../../scripts/hv/sync-cv-downloads.mjs && tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -15,8 +15,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "lint": "tsc --noEmit",
-    "format": "prettier --write 'src/**/*.{ts,tsx}'",
-    "generate:cv": "python3 ../../scripts/hv/generate-cv-pdf.py"
+    "format": "prettier --write 'src/**/*.{ts,tsx}'"
   },
   "dependencies": {
     "@mportafolio/api-client": "workspace:*",

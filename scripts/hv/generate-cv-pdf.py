@@ -1,13 +1,27 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["python-docx>=1.1", "reportlab>=4.0"]
+# ///
 """
-Generate ATS + Visual CV documents (DOCX + PDF) for MiPortafolio.
+CV pipeline for mi-portafolio.
 
-Data must stay in sync with apps/web/src/utils/cv-data.ts
-Usage: python3 scripts/hv/generate-cv-pdf.py
+    cv/input/cv-data.json  ->  cv/output/HV_*.pdf|docx               (local CV files, web downloads)
+                           ->  packages/core/src/data/cv-data.generated.json  (data rendered by the web)
+
+The input JSON is the only file edited by hand (from chat with Copilot/Cursor or by
+passing another JSON with the same shape). The web never edits CV data; it renders
+the generated JSON and serves cv/output (synced by scripts/hv/sync-cv-downloads.mjs).
+
+Usage:
+    pnpm generate:cv
+    uv run scripts/hv/generate-cv-pdf.py [path/to/other-input.json]
 """
 
 from __future__ import annotations
 
+import copy
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -31,8 +45,21 @@ from reportlab.platypus import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-OUTPUT_PUBLIC = REPO_ROOT / "apps/web/public/cv"
-OUTPUT_HV = REPO_ROOT / "Hoja De Vida"
+INPUT_JSON = REPO_ROOT / "cv/input/cv-data.json"
+OUTPUT_DIR = REPO_ROOT / "cv/output"
+WEB_DATA_JSON = REPO_ROOT / "packages/core/src/data/cv-data.generated.json"
+PUBLIC_DIR = REPO_ROOT / "apps/web/public"
+
+OUTPUT_FILES = {
+    "HV_2026_2_ATS_AndresRodriguez.pdf": ("pdf", False),
+    "HV_2026_2_Visual_AndresRodriguez.pdf": ("pdf", True),
+    "HV_2026_2_ATS_AndresRodriguez.docx": ("docx", False),
+    "HV_2026_2_Visual_AndresRodriguez.docx": ("docx", True),
+}
+
+REQUIRED_TEXT = ("name", "title", "email", "phone1", "phone2", "location", "linkedin", "github", "portfolio", "profile")
+REQUIRED_LISTS = ("skills", "experience", "education", "officialCertifications", "learningPathsCertifications", "languages")
+DERIVED_KEYS = ("certificates", "_meta")
 
 PRIMARY = HexColor("#1F4E79")
 ACCENT = HexColor("#2E75B6")
@@ -44,210 +71,132 @@ PRIMARY_RGB = RGBColor(0x1F, 0x4E, 0x79)
 ACCENT_RGB = RGBColor(0x2E, 0x75, 0xB6)
 TEXT_RGB = RGBColor(0x1A, 0x1A, 0x1A)
 
-DATA = {
-    "name": "ANDRES RODRIGUEZ PISA",
-    "title": (
-        "SDET | Senior QA Automation Engineer | API · Backend · Mobile · Web | "
-        "Entornos DevOps | IA aplicada a QA"
-    ),
-    "location": "Bogotá, Colombia",
-    "phone1": "(+57) 320 324 5988",
-    "phone2": "(+57) 301 211 9295",
-    "email": "andresrdrgzps05@gmail.com",
-    "linkedin": "linkedin.com/in/andresrodriguezpisa-qa/",
-    "github": "github.com/Harp-Andres",
-    "portfolio": "https://harp-andres.github.io/mi-portafolio/",
-    "profile": (
-        "Ingeniero de Sistemas especializado en aseguramiento de calidad de software, con "
-        "expertise en arquitectura de frameworks de automatización multiplataforma (Web, API, Mobile) "
-        "y prácticas DevOps de clase empresarial. Sólida experiencia en diseño e implementación de "
-        "estrategias QA con patrones avanzados (Screenplay, POM), CI/CD (GitHub Actions, GitLab CI, "
-        "Jenkins, Azure DevOps), ecosistema Azure (Pipelines YAML, ACR, Blob Storage, Docker) y "
-        "validación de servicios REST/SOAP con trazabilidad de calidad. Liderazgo técnico demostrado "
-        "en estandarización de prácticas QA, gobierno de automatización, arquitectura de frameworks "
-        "mantenibles bajo principios SOLID, y capacitación continua de equipos. Activamente integro "
-        "herramientas de IA (GitHub Copilot, MCP Playwright) para optimizar diseño de escenarios, "
-        "refactorización y cobertura de pruebas. Enfoque senior en calidad continua, automatización "
-        "inteligente, entrega de valor medible y cultura DevOps."
-    ),
-    "skills": [
-        {"cat": "Mobile Automation", "items": "Appium, Appium Server, Appium Inspector, Android/iOS, ADB"},
-        {"cat": "Web Automation", "items": "Selenium WebDriver, Playwright, Cypress, Serenity BDD, HTML, CSS"},
-        {
-            "cat": "API / Backend Testing",
-            "items": "REST Assured, Karate, Postman, SoapUI, Swagger, validación de contratos, pruebas de integración",
-        },
-        {"cat": "Performance", "items": "JMeter, Gatling (básico)"},
-        {
-            "cat": "BDD / Frameworks",
-            "items": "Cucumber, Reqnroll (.NET), Serenity BDD, JUnit, TestNG, Katalon Studio",
-        },
-        {
-            "cat": "Arquitectura / Patrones",
-            "items": "Screenplay, Page Object Model (POM), POO, DTO, Entities, IA & Productividad",
-        },
-        {
-            "cat": "CI/CD & DevOps",
-            "items": "GitHub Actions, GitLab CI/CD, Jenkins, Azure DevOps (YAML, Release, Repos, Boards), Docker, Git, SonarQube",
-        },
-        {"cat": "Cloud & Plataformas", "items": "BrowserStack, AWS Device Farm, Sauce Labs"},
-        {
-            "cat": "Azure (Contenedores & Kubernetes)",
-            "items": "Azure Storage, Azure Kubernetes Service (AKS), Azure Container Registry (ACR), Docker, Kubernetes",
-        },
-        {"cat": "Lenguajes", "items": "Java, JavaScript, TypeScript, C#, SQL"},
-        {"cat": "Build Tools", "items": "Gradle, Maven, Node.js, dotenv"},
-        {"cat": "Reporting", "items": "Allure Report, Cucumber HTML, GitHub Pages Reports Hub"},
-        {"cat": "Bases de Datos", "items": "SQL Server, MySQL, Oracle, PostgreSQL, MongoDB"},
-        {
-            "cat": "Gestión / Colaboración",
-            "items": "Jira, Kanban, Azure Boards, liderazgo técnico, capacitación",
-        },
-        {
-            "cat": "IA & Productividad",
-            "items": "GitHub Copilot, MCP Playwright, MCP AppMod, prompting avanzado",
-        },
-        {"cat": "Scripting / Consola", "items": "PowerShell, Bash, CMD"},
-        {
-            "cat": "Virtualización",
-            "items": "VirtualBox, VMware, Linux, WPS Office, Microsoft Office, IntelliJ IDEA, VS Code",
-        },
-    ],
-    "experience": [
-        {
-            "company": "GFT Technologies",
-            "role": "Test Automation Analyst III",
-            "period": "Feb 2026 – Actualidad",
-            "bullets": [
-                "Lidero la estrategia de automatización QA en entornos CI/CD para pruebas de servicios y front-end.",
-                "Diseño y ejecuto pruebas de performance para validar estabilidad y comportamiento bajo carga.",
-                "Gestiono DoD, Test Plan y trazabilidad de calidad con cobertura de criterios de aceptación.",
-                "Implemento pruebas de aceptación con Karate y automatización web con Serenity.",
-                "Desarrollo automatizaciones inteligentes con IA integrada para auto-curación de tests.",
-            ],
-        },
-        {
-            "company": "Bizagi Latam SAS",
-            "role": "Senior QA Engineer L1",
-            "period": "Ago 2025 – Dic 2025",
-            "bullets": [
-                "Diseñé e implementé arquitecturas de automatización para pruebas API, Web y Mobile.",
-                "Implementé soluciones en Azure para optimizar tiempos de ejecución.",
-                "Establecí estándares de calidad técnica y patrones de diseño (Screenplay, POM).",
-                "Diseñé soluciones con IA para validación visual y auto-curación de tests.",
-                "Lideré capacitación QA y revisión de código con enfoque en mantenibilidad.",
-            ],
-        },
-        {
-            "company": "Tata Consultancy Services (TCS)",
-            "role": "Domain Consultant – QA Automation",
-            "period": "Dic 2024 – Ago 2025",
-            "bullets": [
-                "Orquesté marcos de automatización QA alineados a pipelines CI/CD corporativos.",
-                "Analicé y reestructuré soluciones de automatización de alta complejidad.",
-                "Mejoré mantenibilidad mediante estandarización técnica y principios SOLID.",
-                "Administré pipelines en YAML y Azure DevOps alineados a estándares corporativos.",
-                "Brindé capacitación continua al equipo QA para elevar madurez técnica.",
-            ],
-        },
-        {
-            "company": "Banco de Occidente",
-            "role": "QA Automation Engineer",
-            "period": "Abr 2023 – Dic 2024",
-            "bullets": [
-                "Diseñé estrategias de pruebas automatizadas multiplataforma (Web, API, Mobile) en entornos bancarios.",
-                "Implementé pipelines CI/CD con GitHub Actions, GitLab CI y Azure DevOps.",
-                "Optimicé flujos de trabajo QA y fortalecí procesos de validación funcional.",
-                "Capacité continuamente al equipo QA en herramientas y buenas prácticas.",
-            ],
-        },
-    ],
-    "education": [
-        {
-            "title": "Ingeniero de Sistemas",
-            "inst": "Universidad Nacional Abierta y a Distancia (UNAD)",
-            "year": "2024",
-        },
-        {
-            "title": "Tecnólogo en Gestión de Redes de Datos",
-            "inst": "SENA",
-            "year": "2018",
-        },
-    ],
-    "officialCertifications": [
-        {"title": "Linux Essentials", "issuer": "LPI"},
-        {"title": "Scrum Practitioner", "issuer": "CertMind"},
-    ],
-    "learningPaths": [
-        {"title": "JavaScript — Cymetria Group", "hours": 40},
-        {
-            "title": "Programa Oracle Next Education (7 formaciones) — Oracle + Alura",
-            "hours": 240,
-        },
-    ],
-    "coursesByCategory": {
-        "DevOps & Cloud": [
-            {
-                "title": "DevOps y Cloud con Azure DevOps, App Service Pipelines y Git — Udemy",
-                "hours": 21,
-            },
-            {"title": "Maneja Docker en 5 días: SysAdmin Linux o DevOps — Udemy", "hours": 7},
-            {"title": "Docker Compose with Selenium — Udemy", "hours": 3},
-            {"title": "La Guía de Jenkins: De Cero a Experto — Udemy", "hours": 32},
+
+# ───────────────────────────── INPUT ─────────────────────────────
+
+
+def input_digest(path: Path) -> str:
+    """Line-ending independent hash so Windows (CRLF) and CI (LF) checkouts agree."""
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
+def _iter_courses(data: dict):
+    for category, courses in data.get("certificatesByCategory", {}).items():
+        for course in courses:
+            yield f"certificatesByCategory.{category}", course
+    for course in data.get("learningPathsCertifications", []):
+        yield "learningPathsCertifications", course
+    for cert in data.get("officialCertifications", []):
+        yield "officialCertifications", cert
+
+
+def validate(data: dict) -> list[str]:
+    errors: list[str] = []
+    for key in REQUIRED_TEXT:
+        if not isinstance(data.get(key), str) or not data[key].strip():
+            errors.append(f"'{key}' must be a non-empty string")
+    for key in REQUIRED_LISTS:
+        if not isinstance(data.get(key), list) or not data[key]:
+            errors.append(f"'{key}' must be a non-empty list")
+    if not isinstance(data.get("certificatesByCategory"), dict) or not data["certificatesByCategory"]:
+        errors.append("'certificatesByCategory' must be a non-empty object of category -> courses")
+    for key in DERIVED_KEYS:
+        if key in data:
+            errors.append(f"'{key}' is generated by Python; remove it from the input")
+
+    for i, skill in enumerate(data.get("skills", [])):
+        if not skill.get("category") or not skill.get("items"):
+            errors.append(f"skills[{i}] needs 'category' and 'items'")
+    for i, exp in enumerate(data.get("experience", [])):
+        missing = [k for k in ("company", "role", "period", "bullets") if not exp.get(k)]
+        if missing:
+            errors.append(f"experience[{i}] is missing {missing}")
+    for i, edu in enumerate(data.get("education", [])):
+        missing = [k for k in ("degree", "institution", "year") if not edu.get(k)]
+        if missing:
+            errors.append(f"education[{i}] is missing {missing}")
+
+    seen: dict[str, str] = {}
+    for where, course in _iter_courses(data):
+        title = course.get("title")
+        if not title:
+            errors.append(f"{where}: every entry needs a 'title'")
+            continue
+        if title in seen:
+            errors.append(f"'{title}' is duplicated ({seen[title]} and {where})")
+        seen[title] = where
+        hours = course.get("hours")
+        if hours is not None and (not isinstance(hours, int) or hours < 0):
+            errors.append(f"'{title}': 'hours' must be a non-negative integer")
+        file_path = course.get("filePath")
+        if file_path and not (PUBLIC_DIR / file_path.lstrip("/")).is_file():
+            errors.append(f"'{title}': file not found apps/web/public{file_path}")
+    return errors
+
+
+def build_web_data(data: dict, digest: str) -> dict:
+    """Input + derived fields rendered by the web (flat certificate list for the carousel)."""
+    web = copy.deepcopy(data)
+    certificates = [
+        {"title": f'{cert["title"]} — {cert["issuer"]}', "filePath": cert.get("filePath")}
+        for cert in data["officialCertifications"]
+    ]
+    certificates += [
+        {"title": course["title"], "filePath": course.get("filePath")}
+        for course in data["learningPathsCertifications"]
+    ]
+    certificates += [
+        {"title": course["title"], "filePath": course.get("filePath")}
+        for courses in data["certificatesByCategory"].values()
+        for course in courses
+    ]
+    web["certificates"] = certificates
+    web["_meta"] = {
+        "generatedBy": "scripts/hv/generate-cv-pdf.py",
+        "source": "cv/input/cv-data.json",
+        "sourceSha256": digest,
+        "note": "Generated file. Edit cv/input/cv-data.json and run `pnpm generate:cv`.",
+    }
+    return web
+
+
+def _display_url(url: str) -> str:
+    return url.removeprefix("https://").removeprefix("http://").removeprefix("www.")
+
+
+def to_document_data(data: dict) -> dict:
+    """Map the input (web shape) to the fields the PDF/DOCX layouts use."""
+    return {
+        "name": data["name"],
+        "title": data["title"],
+        "location": data["location"],
+        "phone1": data["phone1"],
+        "phone2": data["phone2"],
+        "email": data["email"],
+        "linkedin": _display_url(data["linkedin"]),
+        "github": _display_url(data["github"]),
+        "portfolio": data["portfolio"],
+        "profile": data["profile"],
+        "skills": [{"cat": s["category"], "items": s["items"]} for s in data["skills"]],
+        "experience": [
+            {"company": e["company"], "role": e["role"], "period": e["period"], "bullets": e["bullets"]}
+            for e in data["experience"]
         ],
-        "Calidad & QA": [
-            {
-                "title": "ISTQB Certified Tester Foundation Level (CTFL 4.0) — Udemy",
-                "hours": 18,
-            },
-            {
-                "title": "Master: Pruebas de Rendimiento con Apache JMeter — Udemy",
-                "hours": 16,
-            },
-            {
-                "title": "Introducción a Automatización de Pruebas con Puppeteer — Platzi",
-                "hours": 12,
-            },
+        "education": [
+            {"title": e["degree"], "inst": e["institution"], "year": e["year"]} for e in data["education"]
         ],
-        "Automatización Web & Mobile": [
-            {"title": "Selenium WebDriver y Grid — Udemy", "hours": 21},
-            {"title": "Selenium Essential Training — LinkedIn Learning", "hours": 5},
-            {"title": "Master Class de Appium 2 con Java — Udemy", "hours": 22},
-            {"title": "Configuración básica con Appium+Serenity — Udemy", "hours": 8},
-            {"title": "Cypress: Master en Automatización Test QA — Udemy", "hours": 23},
-            {"title": "Master: Katalon Studio Test QA Automation — Udemy", "hours": 20},
+        "officialCertifications": [
+            {"title": c["title"], "issuer": c["issuer"]} for c in data["officialCertifications"]
         ],
-        "Playwright & API Testing": [
-            {
-                "title": "Automatización de Pruebas API Rest con Playwright — Udemy",
-                "hours": 16,
-            },
-            {"title": "Curso de Playwright con JavaScript — Udemy", "hours": 19},
-            {
-                "title": "Dominando Playwright con TypeScript: E2E Testing moderno — Udemy",
-                "hours": 21,
-            },
+        "learningPaths": [
+            {"title": c["title"], "hours": c.get("hours")} for c in data["learningPathsCertifications"]
         ],
-        "IA & Productividad": [
-            {"title": "AI Fluency: Framework & Foundations — Anthropic", "hours": 2},
-            {"title": "Introduction to Claude Cowork — Anthropic", "hours": 1},
-            {"title": "Claude 101 — Anthropic", "hours": 1},
-            {
-                "title": "Escriba indicaciones eficaces para lograr resultados óptimos — Microsoft",
-                "hours": 3,
-            },
-            {"title": "Introducción a Microsoft Copilot Studio — Microsoft", "hours": 2},
-            {
-                "title": "Introducción a Microsoft 365 Copilot Chat (básico) — Microsoft",
-                "hours": 2,
-            },
-        ],
-    },
-    "languages": [
-        {"lang": "Español", "level": "Nativo"},
-        {"lang": "Inglés", "level": "B1 (en progreso)"},
-    ],
-}
+        "coursesByCategory": {
+            category: [{"title": c["title"], "hours": c.get("hours")} for c in courses]
+            for category, courses in data["certificatesByCategory"].items()
+        },
+        "languages": data["languages"],
+    }
 
 
 def format_course(course: dict) -> str:
@@ -698,37 +647,48 @@ def build_docx(data: dict, output_path: Path, visual: bool = False):
     doc.save(str(output_path))
 
 
-def write_all(data: dict):
-    OUTPUT_PUBLIC.mkdir(parents=True, exist_ok=True)
-    OUTPUT_HV.mkdir(parents=True, exist_ok=True)
-
-    targets = [
-        ("HV_2026_2_ATS_AndresRodriguez.pdf", lambda p: build_ats_pdf(data, p)),
-        ("HV_2026_2_Visual_AndresRodriguez.pdf", lambda p: build_visual_pdf(data, p)),
-        ("HV_2026_2_ATS_AndresRodriguez.docx", lambda p: build_docx(data, p, visual=False)),
-        ("HV_2026_2_Visual_AndresRodriguez.docx", lambda p: build_docx(data, p, visual=True)),
-    ]
-
-    for filename, builder in targets:
-        for folder in (OUTPUT_PUBLIC, OUTPUT_HV):
-            path = folder / filename
-            builder(path)
-            print(f"✅ {path}")
-
-    export_path = Path(__file__).with_name("cv-export-data.json")
-    export_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"✅ {export_path}")
+def write_outputs(doc_data: dict) -> None:
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    for filename, (kind, visual) in OUTPUT_FILES.items():
+        path = OUTPUT_DIR / filename
+        if kind == "pdf":
+            (build_visual_pdf if visual else build_ats_pdf)(doc_data, path)
+        else:
+            build_docx(doc_data, path, visual=visual)
+        print(f"✅ {path.relative_to(REPO_ROOT).as_posix()}")
 
 
-def main():
-    # Optional: override DATA from JSON (compatibility with older callers)
-    if len(sys.argv) >= 2 and Path(sys.argv[1]).exists():
-        data = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
-    else:
-        data = DATA
-    write_all(data)
-    print("\n🎉 CV DOCX + PDF regenerados.")
+def main() -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+
+    input_path = Path(sys.argv[1]).resolve() if len(sys.argv) >= 2 else INPUT_JSON
+    if not input_path.is_file():
+        print(f"❌ Input not found: {input_path}")
+        return 1
+
+    data = json.loads(input_path.read_text(encoding="utf-8"))
+    errors = validate(data)
+    if errors:
+        print(f"❌ {input_path.name} has {len(errors)} problem(s):")
+        for error in errors:
+            print(f"   - {error}")
+        return 1
+
+    if input_path != INPUT_JSON:
+        INPUT_JSON.parent.mkdir(parents=True, exist_ok=True)
+        INPUT_JSON.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(f"✅ {INPUT_JSON.relative_to(REPO_ROOT).as_posix()} (copied from {input_path.name})")
+
+    write_outputs(to_document_data(data))
+
+    web_data = build_web_data(data, input_digest(INPUT_JSON))
+    WEB_DATA_JSON.write_text(json.dumps(web_data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"✅ {WEB_DATA_JSON.relative_to(REPO_ROOT).as_posix()}")
+
+    print("\n🎉 CV regenerated. The web picks up cv/output on the next `pnpm dev` / `pnpm build`.")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

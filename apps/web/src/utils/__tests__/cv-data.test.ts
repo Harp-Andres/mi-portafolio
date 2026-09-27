@@ -26,7 +26,7 @@ describe('CV Data Constants', () => {
   })
 
   it('should have non-empty profile description', () => {
-    expect(typeof CV_DATA.bio === 'string' || typeof CV_DATA.profile === 'string').toBe(true)
+    expect(CV_DATA.profile.length).toBeGreaterThan(50)
   })
 
   it('should have skills array with categories', () => {
@@ -44,9 +44,11 @@ describe('CV Data Constants', () => {
     expect(CV_DATA.education.length).toBeGreaterThan(0)
   })
 
-  it('should have certificates', () => {
-    expect(typeof CV_DATA.certificates === 'object').toBe(true)
-    expect(Object.keys(CV_DATA.certificates).length).toBeGreaterThan(0)
+  it('should derive the flat certificate list from every category, learning path and official cert', () => {
+    const courses = Object.values(CV_DATA.certificatesByCategory).flat()
+    const expected =
+      CV_DATA.officialCertifications.length + CV_DATA.learningPathsCertifications.length + courses.length
+    expect(CV_DATA.certificates).toHaveLength(expected)
   })
 
   it('should have languages', () => {

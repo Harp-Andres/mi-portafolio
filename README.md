@@ -77,23 +77,23 @@ MiPortafolio/
 │   │   ├── CVDownloads.tsx  # Modal descarga CV
 │   │   └── Footer.tsx       # Footer
 │   ├── utils/
-│   │   └── cv-data.ts       # 🎯 SINGLE SOURCE OF TRUTH (CV centralizado)
-│   ├── types/
-│   │   └── index.ts         # TypeScript interfaces
+│   │   └── cv-data.ts       # Re-exports CV_DATA from @mportafolio/core (generated)
 │   ├── App.tsx              # Root component
 │   ├── main.tsx             # Entry point
 │   └── index.css            # Tailwind @import "tailwindcss"
 │
 ├── scripts/
 │   └── hv/
-│       └── generate-cv-sdet.mjs    # 📄 DOCX CV generation script
+│       ├── generate-cv-pdf.py      # 📄 cv/input → PDF/DOCX + web data
+│       └── sync-cv-downloads.mjs   # cv/output → apps/web/public/cv (dev/build)
 │
 ├── docs/
-│   ├── AGENT_SKILLS.md             # 📚 10 agent skills documentadas
-│   └── CV_MANAGEMENT_WORKFLOW.md   # 🔄 E2E workflow (10 pasos)
+│   ├── SKILLS.md                   # 📚 Agent skills
+│   └── CV_MANAGEMENT/WORKFLOW.md   # 🔄 CV flow by use case
 │
-├── Hoja De Vida/
-│   └── HV_2026_ATS_AndesRodriguez.docx  # Generated CV
+├── cv/
+│   ├── input/cv-data.json          # ✏️ Only file edited to change the CV
+│   └── output/HV_2026_2_*.pdf|docx # Generated CVs (served as web downloads)
 │
 ├── .github/
 │   └── workflows/
@@ -156,12 +156,13 @@ npm run preview
 
 ### CV & Documentos
 ```bash
-# Generar DOCX CV (ATS optimizado)
-node scripts/hv/generate-cv-sdet.mjs
-# Output: Hoja De Vida/HV_2026_ATS_AndesRodriguez.docx
+# 1. Edit cv/input/cv-data.json (or ask Copilot/Cursor: /update-cv)
+# 2. Validate + regenerate PDF/DOCX (ATS & Visual) and the web data
+pnpm generate:cv
+# Output: cv/output/HV_2026_2_*.pdf|docx + packages/core/src/data/cv-data.generated.json
 
-# Exportar a PDF (manual en WPS Office por ahora)
-# Abrir DOCX → Archivo → Exportar PDF
+# Check the web data is in sync with the input
+pnpm sync:verify
 ```
 
 ### Testing & QA
@@ -277,7 +278,7 @@ git push origin feat/rama
 └─────────────────────────────────────────────────────┘
 ```
 
-**Documentación completa:** [CV_MANAGEMENT_WORKFLOW.md](docs/CV_MANAGEMENT_WORKFLOW.md)
+**Documentación completa:** [CV_MANAGEMENT_WORKFLOW.md](docs/CV_MANAGEMENT/WORKFLOW.md)
 
 ---
 
@@ -459,7 +460,7 @@ Documentado en `.github/workflows/`:
 
 **Para automatización futura del CV workflow:**
 
-- **[AGENT_SKILLS.md](docs/AGENT_SKILLS.md)** - 10 skills reutilizables
+- **[SKILLS.md](docs/SKILLS.md)** - 10 skills reutilizables
   1. CV Data Management
   2. React Component Development (Tailwind CSS v4)
   3. CV Document Generation (DOCX)
@@ -471,7 +472,7 @@ Documentado en `.github/workflows/`:
   9. Responsive Design Testing
   10. Production Build & Distribution
 
-- **[CV_MANAGEMENT_WORKFLOW.md](docs/CV_MANAGEMENT_WORKFLOW.md)** - E2E workflow de 10 pasos
+- **[CV_MANAGEMENT_WORKFLOW.md](docs/CV_MANAGEMENT/WORKFLOW.md)** - E2E workflow de 10 pasos
   - Desde cambios en CV data hasta deploy en producción
   - Comandos exactos, troubleshooting, checklist
 
@@ -551,7 +552,7 @@ GitHub → Actions → Deploy Pages workflow
 | Deploy no se ve | Cache browser | `Ctrl+Shift+R` + esperar 60s |
 | GitHub Actions falla | ESLint errors | `npm run lint` local |
 
-**Más detalles:** [CV_MANAGEMENT_WORKFLOW.md#troubleshooting](docs/CV_MANAGEMENT_WORKFLOW.md)
+**Más detalles:** [CV_MANAGEMENT_WORKFLOW.md#troubleshooting](docs/CV_MANAGEMENT/WORKFLOW.md)
 
 ---
 
@@ -603,7 +604,7 @@ MIT © 2026 Andrés Rodríguez Pisa
 6. Esperar validación GitHub Actions
 7. Merge cuando checks pasen ✅
 
-**Guía completa:** [CV_MANAGEMENT_WORKFLOW.md](docs/CV_MANAGEMENT_WORKFLOW.md)
+**Guía completa:** [CV_MANAGEMENT_WORKFLOW.md](docs/CV_MANAGEMENT/WORKFLOW.md)
 
 ---
 
