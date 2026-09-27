@@ -42,6 +42,19 @@ describe('Skills Component', () => {
     expect(gridContainer).toHaveClass('lg:grid-cols-3')
   })
 
+  it('should size cards to their content on mobile and equalize from sm up', () => {
+    const { container } = render(<Skills categories={mockCategories} />)
+    const gridContainer = container.querySelector('.grid')
+    expect(gridContainer).not.toHaveClass('auto-rows-fr')
+    expect(gridContainer).toHaveClass('sm:auto-rows-fr')
+
+    screen.getAllByTestId('skill-card').forEach(card => {
+      expect(card).toHaveClass('h-auto')
+      expect(card).toHaveClass('sm:h-80')
+      expect(card).not.toHaveClass('h-80')
+    })
+  })
+
   it('should parse comma-separated items correctly', () => {
     render(<Skills categories={mockCategories} />)
     const items = screen.getAllByText(/WebDriver|Playwright|Cypress|Assured|Postman|SoapUI/)

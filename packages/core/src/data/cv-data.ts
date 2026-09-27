@@ -275,6 +275,13 @@ export const CV_DATA: any = {
         hours: 21,
       },
       {
+        id: 'docker-sysadmin-udemy',
+        name: 'Maneja Docker en 5 días: SysAdmin Linux o DevOps',
+        issuer: 'Udemy',
+        date: '2026',
+        hours: 7,
+      },
+      {
         id: 'docker-selenium',
         name: 'Docker Compose with Selenium',
         issuer: 'Udemy',
@@ -431,6 +438,7 @@ export const CV_DATA: any = {
   certificatesByCategory: {
     'DevOps & Cloud': [
       { title: 'DevOps y Cloud con Azure DevOps, App Service Pipelines y Git — Udemy', filePath: '/certificados/Azure/Udemy/certificado-azure.jpg', hours: 21 },
+      { title: 'Maneja Docker en 5 días: SysAdmin Linux o DevOps — Udemy', filePath: '/certificados/Docker/certificado-docker.jpg', hours: 7 },
       { title: 'Docker Compose with Selenium — Udemy', filePath: null, hours: 3 },
       { title: 'La Guía de Jenkins: De Cero a Experto — Udemy', filePath: '/certificados/Jenkins/Udemy/certificado-jenkins.jpg', hours: 32 },
     ],

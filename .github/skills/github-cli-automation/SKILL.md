@@ -1,11 +1,11 @@
 ---
 name: github-cli-automation
-description: PowerShell CLI scripts for testing, building, and managing CI/CD workflows in MiPortafolio. Use when the user asks to run tests, validate/build, trigger or check GitHub Actions workflows, or create/merge pull requests via the gh CLI.
+description: PowerShell CLI scripts for testing, building, and managing CI/CD workflows in mi-portafolio. Use when the user asks to run tests, validate/build, trigger or check GitHub Actions workflows, or create/merge pull requests via the gh CLI.
 ---
 
 # GitHub CLI Automation Skill
 
-This skill enables the agent to interact with the MiPortafolio monorepo using CLI scripts for testing, building, and GitHub Actions management.
+This skill enables the agent to interact with the mi-portafolio monorepo using CLI scripts for testing, building, and GitHub Actions management.
 
 ## Available Scripts
 
@@ -187,6 +187,19 @@ Manage pull requests.
 
 ---
 
+## PowerShell notes (direct `gh` usage)
+
+- **PR bodies with Markdown:** backticks are PowerShell escape characters, so an inline `--body "…`code`…"` gets mangled (e.g. `unknown flag: --noEmit`). Write the body to a temp file and pass it with `--body-file`:
+  ```powershell
+  gh pr create --base main --head feat/my-branch --title "feat(web): ..." --body-file "$env:TEMP\pr-body.md"
+  Remove-Item "$env:TEMP\pr-body.md"
+  ```
+- **Commit messages:** use repeated `-m` flags for the subject and each bullet instead of a multi-line string.
+- **Staging:** add files explicitly (`git add <paths>`); never `git add -A`, because runtime artifacts such as `agent/.checkpoints/` may be present.
+- **`--jq` filters:** PowerShell mangles `\(...)` string interpolation (`unknown command "\\(.headSha[0:7])"`). Use the default table output (`gh run list --branch <b> --limit 3`) or pipe `--json` into `ConvertFrom-Json`.
+- **Diagnosing CI:** `gh run view <id>` lists jobs/steps; `gh run view <id> --log-failed` shows the failing assertion.
+- **After opening a PR:** `gh pr checks <number>` shows CI plus the Cursor Bugbot review. A pending status is normal right after creation.
+
 ## Requirements
 
 - PowerShell 5.1+ (Windows) or PowerShell Core 7+
@@ -210,7 +223,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ## Key Information
 
-**Repository:** https://github.com/Harp-Andres/MiPortafolio
+**Repository:** https://github.com/Harp-Andres/mi-portafolio (renamed from `MiPortafolio`; old URLs redirect, but always use the new one)
 
 **Branch Protection (main):**
 - 1 PR review required

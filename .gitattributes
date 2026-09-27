@@ -1,0 +1,11 @@
+# Never apply line-ending conversion to binary documents/images.
+# Uncompressed PDFs look like text to git; core.autocrlf=true would corrupt their xref offsets.
+*.pdf  binary
+*.docx binary
+*.xlsx binary
+*.jpg  binary
+*.jpeg binary
+*.png  binary
+*.gif  binary
+*.webp binary
+*.ico  binary

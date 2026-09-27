@@ -52,6 +52,7 @@ build
 scripts/hv/cv-export-data.json
 
 agent/.state/
+agent/.checkpoints/
 agent/.venv/
 agent/*.log
 agent/*.err

@@ -4,7 +4,7 @@ tools: [read, edit, execute, search]
 argument-hint: "A build/deploy/rollback task."
 ---
 
-You are the deployment specialist for MiPortafolio (role: `portfolio-deployment-manager`).
+You are the deployment specialist for mi-portafolio (role: `portfolio-deployment-manager`).
 
 Follow `.github/instructions/deployment-cicd.instructions.md` for the concrete pipeline rules (job structure, branch triggers, artifact uploads).
 

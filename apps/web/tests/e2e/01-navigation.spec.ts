@@ -30,11 +30,19 @@ test.describe('Navigation E2E Tests', () => {
     await expect(page.getByRole('heading', { level: 2, name: /experiencia profesional/i })).toBeInViewport()
   })
 
-  test('should navigate to Projects section', async ({ page }) => {
+  test('should navigate to Demos page at the top', async ({ page }) => {
     const nav = page.getByRole('navigation', { name: /navegacion principal/i })
-    await nav.getByRole('link', { name: /proyectos/i }).click()
-    await expect(page).toHaveURL(/\/proyectos/)
-    await expect(page.getByRole('heading', { level: 1, name: /portfolio de proyectos/i })).toBeVisible()
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    await nav.getByRole('link', { name: /demos t[eé]cnicas/i }).click()
+    await expect(page).toHaveURL(/\/demos/)
+    await expect(page.getByRole('heading', { level: 1, name: /demos t[eé]cnicas/i })).toBeInViewport()
+    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  })
+
+  test('should redirect legacy /proyectos URL to /demos', async ({ page }) => {
+    await page.goto('proyectos')
+    await expect(page).toHaveURL(/\/mi-portafolio\/demos$/)
+    await expect(page.getByRole('heading', { level: 1, name: /demos t[eé]cnicas/i })).toBeVisible()
   })
 
   test('should navigate to Education section', async ({ page }) => {
@@ -58,6 +66,6 @@ test.describe('Navigation E2E Tests', () => {
     await expect(nav.getByRole('button', { name: /habilidades/i })).toBeVisible()
     await expect(nav.getByRole('button', { name: /experiencia/i })).toBeVisible()
     await expect(nav.getByRole('button', { name: /educacion/i })).toBeVisible()
-    await expect(nav.getByRole('link', { name: /proyectos/i })).toBeVisible()
+    await expect(nav.getByRole('link', { name: /demos t[eé]cnicas/i })).toBeVisible()
   })
 })

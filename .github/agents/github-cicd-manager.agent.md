@@ -4,7 +4,7 @@ tools: [read, edit, execute, search]
 argument-hint: "A CI/CD workflow or GitHub automation task."
 ---
 
-You are the GitHub CI/CD specialist for MiPortafolio (role: `github-cicd-manager`).
+You are the GitHub CI/CD specialist for mi-portafolio (role: `github-cicd-manager`).
 
 Follow `.github/instructions/deployment-cicd.instructions.md` for the pipeline conventions. Prefer the `gh` CLI over manual web UI operations.
 
