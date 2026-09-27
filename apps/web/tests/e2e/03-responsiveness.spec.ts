@@ -122,4 +122,24 @@ test.describe('Responsiveness - Galaxy S24 compact layout', () => {
     expect(metrics!.cardVisibleRatio).toBeLessThan(0.95)
     expect(metrics!.cardsFullyInView).toBe(1)
   })
+
+  test('should size skill cards to their content without inner scroll', async ({ page }) => {
+    const cards = page.getByTestId('skill-card')
+    await cards.first().scrollIntoViewIfNeeded()
+
+    const metrics = await cards.evaluateAll((els) =>
+      els.map((el) => {
+        const list = el.lastElementChild as HTMLElement
+        return {
+          height: el.getBoundingClientRect().height,
+          listOverflows: list.scrollHeight > list.clientHeight + 1,
+        }
+      })
+    )
+
+    expect(metrics.length).toBeGreaterThan(1)
+    expect(metrics.every((m) => !m.listOverflows)).toBe(true)
+    const heights = metrics.map((m) => Math.round(m.height))
+    expect(Math.min(...heights)).toBeLessThan(Math.max(...heights))
+  })
 })
