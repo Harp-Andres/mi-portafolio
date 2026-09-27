@@ -191,6 +191,7 @@ DATA = {
                 "title": "DevOps y Cloud con Azure DevOps, App Service Pipelines y Git — Udemy",
                 "hours": 21,
             },
+            {"title": "Maneja Docker en 5 días: SysAdmin Linux o DevOps — Udemy", "hours": 7},
             {"title": "Docker Compose with Selenium — Udemy", "hours": 3},
             {"title": "La Guía de Jenkins: De Cero a Experto — Udemy", "hours": 32},
         ],
