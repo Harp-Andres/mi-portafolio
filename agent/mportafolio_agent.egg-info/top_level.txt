@@ -1,3 +1,0 @@
-phase2_setup_agent
-setup_agent
-setup_bootstrap_cli
