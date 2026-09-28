@@ -1,36 +1,22 @@
 """Guards the two-way link between .github/agents and the maestro MCP server."""
 
 import asyncio
-import importlib.util
 import json
-import sys
-from pathlib import Path
+import re
 
 import pytest
 from mcp.types import CallToolRequestParams, GetPromptRequestParams, PaginatedRequestParams
 
-INTERFACE_DIR = Path(__file__).resolve().parents[1] / "1_interface"
-sys.path.insert(0, str(INTERFACE_DIR))
-
-import agent_registry  # noqa: E402
-import cv_pipeline  # noqa: E402
-
-
-def _load(name: str, filename: str):
-    spec = importlib.util.spec_from_file_location(name, INTERFACE_DIR / filename)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+import agent_registry
+import cv_pipeline
+import workflows
 
 
 @pytest.fixture(scope="module")
 def server():
-    return _load("mcp_server_under_test", "mcp_server.py")
+    import mcp_server
 
-
-@pytest.fixture(scope="module")
-def handlers(server):
-    return server._load_handlers()
+    return mcp_server
 
 
 def test_agents_are_discovered():
@@ -40,11 +26,9 @@ def test_agents_are_discovered():
     assert all(spec.description for spec in agents.values())
 
 
-def test_agents_and_maestro_are_consistent(handlers):
+def test_agents_and_maestro_are_consistent():
     agents = agent_registry.load_agents()
-    issues = agent_registry.consistency_issues(
-        agents, handlers.SKILL_SPECIALIZED_OWNER, handlers.WORKFLOW_AGENT_PRIORITY
-    )
+    issues = agent_registry.consistency_issues(agents, workflows.SKILL_OWNER, workflows.WORKFLOW_AGENTS)
     assert issues == []
 
 
@@ -85,6 +69,17 @@ def test_tool_list_includes_session_tools(server):
     listed = asyncio.run(server.handle_list_tools(None, PaginatedRequestParams()))
     names = [tool.name for tool in listed.tools]
     assert names[:5] == ["maestro-context", "maestro-agent", "cv-status", "cv-apply", "cv-generate"]
+
+
+def test_agent_files_list_their_real_maestro_tools(server):
+    views, _ = server._agent_views()
+    for name, view in views.items():
+        match = re.search(r"Your maestro tools: (.*?)\. Re-check", view.spec.instructions)
+        if match is None:
+            continue
+        listed = re.findall(r"`([\w-]+)`", match.group(1).split("—")[0])
+        expected = [] if "no dedicated" in match.group(1) else view.mcp_tools
+        assert sorted(listed) == sorted(expected), f"{view.spec.path}: lists {listed}, maestro exposes {view.mcp_tools}"
 
 
 def test_cv_manager_owns_cv_tools(server):

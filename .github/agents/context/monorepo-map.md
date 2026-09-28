@@ -1,7 +1,7 @@
 # Monorepo Map
 
 Top-level:
-- agent: 7-layer orchestrator runtime and MCP server
+- agent: maestro MCP server (interface, orchestrator and skills layers)
 - apps/web: React + Vite + Playwright
 - apps/api: FastAPI + pytest
 - packages: shared modules
@@ -11,7 +11,8 @@ Core workflows:
 - Deploy: build -> validate -> release
 
 Critical paths:
-- agent/1_interface: CLI and MCP server
-- agent/4_skills: skill implementations
+- agent/1_interface: MCP server, agent registry, CV backend adapter
+- agent/2_orchestrator: workflow catalog and maestro runner
+- agent/4_skills: command skills (pnpm/uv/git/gh)
 - .github/agents/*.agent.md: hierarchy and responsibilities
 - .mcp.json: MCP server registration

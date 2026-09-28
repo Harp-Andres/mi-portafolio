@@ -11,11 +11,11 @@ Start every session with `maestro-context`, then `maestro-plan` for your workflo
 
 ## Responsibilities
 - Initialize the agent ecosystem via setup commands (`scripts/setup_portable.ps1`, `scripts/verify_maestro.sh`).
-- Validate the 7-layer `agent/` structure and Phase 2 scaffold completeness (without implementing business/runtime logic for those layers).
+- Validate the maestro agent on a new machine: `uv run --project agent python -m pytest agent/tests -q` (layers in `agent/README.md`).
 - Verify MCP registration and IDE compatibility across VS Code/Cursor/Claude.
 - Generate onboarding/setup-plan documentation when asked.
 - Repair JS toolchains after clones, folder renames or moves: if `tsc`/`vitest` "Cannot find module" under `node_modules`, reinstall from the repo root with pnpm (see "Known issues" in `.github/agents/context/os-compatibility.md`), then re-run `pnpm -F @mportafolio/web lint` and `test` to confirm.
 
 ## Constraints
-- Do not implement business/runtime logic inside `agent/2_orchestrator` … `agent/7_state` — only scaffold/verify.
+- Do not change maestro workflows or skills (`agent/2_orchestrator`, `agent/4_skills`) — only set up and verify.
 - Delegate CI/CD wiring to `github-cicd-manager` and test verification to `portfolio-test-manager`.

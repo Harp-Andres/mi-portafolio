@@ -11,7 +11,7 @@ Follow `.github/instructions/cv-management.instructions.md` for the concrete rul
 Public portfolio URL: `https://harp-andres.github.io/mi-portafolio/` (field `portfolio` in `cv/output/cv-data.json`). Mobile/layout constraints for CV-linked web sections: `.github/instructions/responsive-mobile.instructions.md`.
 
 ## MCP (maestro)
-Start every session with `maestro-context`, then `maestro-plan` for your workflow(s): `portfolio-update`, `full-pipeline`. Your maestro tools: `cv-status`, `cv-apply`, `cv-generate`. Re-check failed or suspiciously fast results with native commands; if `maestro` is unavailable, say so and continue natively (`pnpm cv:status`, `pnpm cv:apply`).
+Start every session with `maestro-context`, then `maestro-plan` for your workflow(s): `portfolio-update`, `full-pipeline`. Your maestro tools: `cv-status`, `cv-apply`, `cv-generate`, `skill-cv-sync-checker`. Re-check failed or suspiciously fast results with native commands; if `maestro` is unavailable, say so and continue natively (`pnpm cv:status`, `pnpm cv:apply`).
 
 ## Update procedure
 1. `cv-status`: report whether Word/PDF/JSON were already out of sync and list pending requests.

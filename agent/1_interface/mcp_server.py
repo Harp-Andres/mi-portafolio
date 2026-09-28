@@ -1,23 +1,21 @@
 #!/usr/bin/env python3
 """
-MCP Server - Maestro Agent
+Maestro MCP server (Model Context Protocol, stdio).
 
-Exposes maestro orchestrator and portfolio skills as MCP tools, and every
-`.github/agents/*.agent.md` definition as an MCP prompt (see agent_registry.py).
-Implements Model Context Protocol 2.2.0
+Protocol adapter only: exposes the session tools, the CV backend tools, the maestro workflows and
+the skills as MCP tools, and every `.github/agents/*.agent.md` definition as an MCP prompt.
 
 Usage:
-    python 1_interface/mcp_server.py
+    uv run --directory agent python 1_interface/mcp_server.py
 """
 
 import asyncio
-import inspect
 import json
+import logging
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable, Dict, List
 
-# MCP imports
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import (
@@ -35,93 +33,58 @@ from mcp.types import (
     Tool,
 )
 
-# Setup path
-_AGENT_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(_AGENT_ROOT))
-sys.path.insert(0, str(Path(__file__).parent))
+# Numbered layer folders are not importable packages, so each layer goes on sys.path.
+_AGENT_ROOT = Path(__file__).resolve().parent.parent
+for _layer in ("4_skills", "2_orchestrator", "1_interface"):
+    sys.path.insert(0, str(_AGENT_ROOT / _layer))
 
 import agent_registry  # noqa: E402
 import cv_pipeline  # noqa: E402
+import maestro  # noqa: E402
+import skill_registry  # noqa: E402
+import workflows  # noqa: E402
 
-WORKFLOWS = ["ci", "test", "deploy", "portfolio-update", "quality", "full-pipeline"]
-
-
-def get_logger(name: str):
-    """Simple logger without circular dependency issues"""
-    import logging
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stderr)
-        formatter = logging.Formatter(
-            '[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
-    return logger
-
-
-logger = get_logger("mcp_server")
-
-# Create MCP server
+logger = logging.getLogger("maestro")
 server = Server("maestro")
 
+EXPOSED_SKILLS: List[str] = [
+    "type_checker",
+    "unit_test_runner",
+    "e2e_test_runner",
+    "build_orchestrator",
+    "quality_gate_runner",
+    "coverage_analyzer",
+    "cv_sync_checker",
+    "github_pages_deployer",
+    "release_orchestrator",
+    "git_workflow_manager",
+]
 
-_handlers_mod = None
-
-
-def _load_handlers():
-    """Load handlers.py by path (numbered directories are not importable packages)."""
-    global _handlers_mod
-    if _handlers_mod is None:
-        import importlib.util as _ilu
-        spec = _ilu.spec_from_file_location("handlers", _AGENT_ROOT / "1_interface" / "handlers.py")
-        _handlers_mod = _ilu.module_from_spec(spec)
-        spec.loader.exec_module(_handlers_mod)
-    return _handlers_mod
-
-
-def _agent_views() -> tuple[dict, list[str]]:
-    handlers_mod = _load_handlers()
-    agents = agent_registry.load_agents()
-    exposed = [tool.name for tool in get_tools()]
-    views = agent_registry.build_views(
-        agents, handlers_mod.SKILL_SPECIALIZED_OWNER, handlers_mod.WORKFLOW_AGENT_PRIORITY, exposed
-    )
-    issues = agent_registry.consistency_issues(
-        agents, handlers_mod.SKILL_SPECIALIZED_OWNER, handlers_mod.WORKFLOW_AGENT_PRIORITY
-    )
-    return views, issues
-
-
-def handle_maestro_context(_arguments: dict) -> dict:
-    views, issues = _agent_views()
-    return agent_registry.build_context(views, _load_handlers().WORKFLOW_AGENT_PRIORITY, issues)
-
-
-def handle_maestro_agent(arguments: dict) -> dict:
-    name = arguments.get("agent", "")
-    views, _ = _agent_views()
-    view = views.get(name)
-    if view is None:
-        return {"status": "error", "error": f"Unknown agent '{name}'", "available": sorted(views)}
-    return {"status": "success", **view.detail(), "prompt": agent_registry.render_agent_prompt(view, arguments.get("task", ""))}
-
-
-LOCAL_HANDLERS = {
-    "maestro-context": handle_maestro_context,
-    "maestro-agent": handle_maestro_agent,
-    "cv-status": cv_pipeline.cv_status,
-    "cv-apply": cv_pipeline.cv_apply,
-    "cv-generate": cv_pipeline.cv_generate,
+_EMPTY_SCHEMA: Dict[str, Any] = {"type": "object", "properties": {}}
+_SKILL_SCHEMA: Dict[str, Any] = {
+    "type": "object",
+    "properties": {"verbose": {"type": "boolean", "description": "Include the output of passing steps"}},
 }
 
 
-def get_tools() -> list[Tool]:
-    """Get all available MCP tools"""
+def _workflow_schema(description: str, with_options: bool) -> Dict[str, Any]:
+    properties: Dict[str, Any] = {
+        "workflow": {"type": "string", "enum": list(workflows.WORKFLOW_SKILLS), "description": description},
+    }
+    if with_options:
+        properties["options"] = {
+            "type": "object",
+            "properties": {
+                "continue_on_error": {"type": "boolean", "description": "Run the remaining skills after a failure"},
+                "verbose": {"type": "boolean", "description": "Include the output of passing steps"},
+            },
+        }
+    return {"type": "object", "properties": properties, "required": ["workflow"]}
+
+
+def get_tools() -> List[Tool]:
     agent_names = sorted(agent_registry.load_agents())
-    return [
+    session_and_cv = [
         Tool(
             name="maestro-context",
             description=(
@@ -129,7 +92,7 @@ def get_tools() -> list[Tool]:
                 "all .github/agents with their workflows/skills/MCP tools, key repo paths (CV pipeline) and "
                 "agent<->maestro consistency issues."
             ),
-            inputSchema={"type": "object", "properties": {}},
+            inputSchema=_EMPTY_SCHEMA,
         ),
         Tool(
             name="maestro-agent",
@@ -149,7 +112,7 @@ def get_tools() -> list[Tool]:
                 "[CV] CV backend status: are cv/output Word/PDF and cv-data.json (web data) rendered from the "
                 "same CV, and which change requests wait in cv/input/requests"
             ),
-            inputSchema={"type": "object", "properties": {}},
+            inputSchema=_EMPTY_SCHEMA,
         ),
         Tool(
             name="cv-apply",
@@ -171,181 +134,105 @@ def get_tools() -> list[Tool]:
         Tool(
             name="cv-generate",
             description="[CV] Re-render cv/output Word/PDF and cv-data.json from the current CV (no data changes)",
-            inputSchema={"type": "object", "properties": {}},
+            inputSchema=_EMPTY_SCHEMA,
         ),
+    ]
+    orchestration = [
         Tool(
             name="maestro",
-            description="[MAESTRO] Master orchestrator - Execute workflows: ci, test, deploy, portfolio-update, full-pipeline",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "workflow": {
-                        "type": "string",
-                        "description": "Workflow to execute",
-                        "enum": WORKFLOWS
-                    },
-                    "options": {
-                        "type": "object",
-                        "description": "Workflow options (verbose, dry_run, etc.)",
-                        "default": {}
-                    }
-                },
-                "required": ["workflow"]
-            }
+            description="[MAESTRO] Run a workflow: its skills in order, stopping at the first failure",
+            inputSchema=_workflow_schema("Workflow to run", with_options=True),
         ),
         Tool(
             name="maestro-plan",
-            description="[PLAN] Preview maestro orchestration plan (specialized agents and skill sequence) without executing skills",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "workflow": {
-                        "type": "string",
-                        "description": "Workflow to preview",
-                        "enum": WORKFLOWS
-                    }
-                },
-                "required": ["workflow"]
-            }
-        ),
-        Tool(
-            name="skill-type-checker",
-            description="[CHECK] Run type checking (mypy for Python, tsc for TypeScript)",
-            inputSchema={"type": "object", "properties": {}}
-        ),
-        Tool(
-            name="skill-unit-test-runner",
-            description="[TEST] Run unit tests (pytest for Python, vitest for TypeScript)",
-            inputSchema={"type": "object", "properties": {}}
-        ),
-        Tool(
-            name="skill-e2e-test-runner",
-            description="[PLAY] Run E2E tests (Playwright)",
-            inputSchema={"type": "object", "properties": {}}
-        ),
-        Tool(
-            name="skill-build-orchestrator",
-            description="[BUILD] Build all projects",
-            inputSchema={"type": "object", "properties": {}}
-        ),
-        Tool(
-            name="skill-quality-gate-runner",
-            description="[GATE] Run quality gates",
-            inputSchema={"type": "object", "properties": {}}
-        ),
-        Tool(
-            name="skill-coverage-analyzer",
-            description="[COVERAGE] Analyze and report test coverage",
-            inputSchema={"type": "object", "properties": {}}
-        ),
-        Tool(
-            name="skill-github-pages-deployer",
-            description="[DEPLOY] Deploy artifacts to GitHub Pages",
-            inputSchema={"type": "object", "properties": {}}
-        ),
-        Tool(
-            name="skill-release-orchestrator",
-            description="[RELEASE] Orchestrate release pipeline",
-            inputSchema={"type": "object", "properties": {}}
-        ),
-        Tool(
-            name="skill-git-workflow-manager",
-            description="[GIT] Execute git workflow operations",
-            inputSchema={"type": "object", "properties": {}}
+            description="[PLAN] Preview a workflow (owning agents and skill sequence) without running it",
+            inputSchema=_workflow_schema("Workflow to preview", with_options=False),
         ),
     ]
+    skills = [
+        Tool(
+            name=agent_registry.skill_tool_name(name),
+            description=skill_registry.SKILLS[name].DESCRIPTION,
+            inputSchema=_SKILL_SCHEMA,
+        )
+        for name in EXPOSED_SKILLS
+    ]
+    return session_and_cv + orchestration + skills
+
+
+def _agent_views() -> tuple[dict, list[str]]:
+    agents = agent_registry.load_agents()
+    exposed = [tool.name for tool in get_tools()]
+    views = agent_registry.build_views(agents, workflows.SKILL_OWNER, workflows.WORKFLOW_AGENTS, exposed)
+    issues = agent_registry.consistency_issues(agents, workflows.SKILL_OWNER, workflows.WORKFLOW_AGENTS)
+    return views, issues
+
+
+def handle_maestro_context(_arguments: dict) -> dict:
+    views, issues = _agent_views()
+    return agent_registry.build_context(views, workflows.WORKFLOW_AGENTS, issues)
+
+
+def handle_maestro_agent(arguments: dict) -> dict:
+    name = arguments.get("agent", "")
+    views, _ = _agent_views()
+    view = views.get(name)
+    if view is None:
+        return {"status": "error", "error": f"Unknown agent '{name}'", "available": sorted(views)}
+    return {"status": "success", **view.detail(), "prompt": agent_registry.render_agent_prompt(view, arguments.get("task", ""))}
+
+
+def handle_maestro(arguments: dict) -> dict:
+    options = arguments.get("options") or {}
+    return maestro.run_workflow(
+        arguments.get("workflow", ""),
+        continue_on_error=bool(options.get("continue_on_error", False)),
+        verbose=bool(options.get("verbose", False)),
+    )
+
+
+def handle_maestro_plan(arguments: dict) -> dict:
+    return maestro.describe(arguments.get("workflow", ""))
+
+
+def _skill_handler(name: str) -> Callable[[dict], dict]:
+    return lambda arguments: maestro.run_skill(name, verbose=bool(arguments.get("verbose", False)))
+
+
+HANDLERS: Dict[str, Callable[[dict], dict]] = {
+    "maestro-context": handle_maestro_context,
+    "maestro-agent": handle_maestro_agent,
+    "cv-status": cv_pipeline.cv_status,
+    "cv-apply": cv_pipeline.cv_apply,
+    "cv-generate": cv_pipeline.cv_generate,
+    "maestro": handle_maestro,
+    "maestro-plan": handle_maestro_plan,
+    **{agent_registry.skill_tool_name(name): _skill_handler(name) for name in EXPOSED_SKILLS},
+}
+
+
+def _text(payload: dict) -> CallToolResult:
+    return CallToolResult(content=[TextContent(type="text", text=json.dumps(payload, ensure_ascii=False))])
 
 
 async def handle_list_tools(_ctx: Any, _params: PaginatedRequestParams) -> ListToolsResult:
-    """Handle list tools request - MCP protocol method: tools/list"""
-    logger.info("[TOOLS] Listing tools")
-    tools = get_tools()
-    logger.info(f"   Found {len(tools)} tools")
-    return ListToolsResult(tools=tools)
+    return ListToolsResult(tools=get_tools())
 
 
 async def handle_call_tool(_ctx: Any, params: CallToolRequestParams) -> CallToolResult:
-    """Handle tool call request - MCP protocol method: tools/call"""
-    tool_name = params.name
-    arguments = params.arguments or {}
-    
-    logger.info(f"[CALL] Tool invoked: {tool_name}")
-    logger.debug(f"   Arguments: {arguments}")
-    
+    handler = HANDLERS.get(params.name)
+    if handler is None:
+        return _text({"status": "error", "error": f"Tool '{params.name}' not found"})
+    logger.info("tool %s", params.name)
     try:
-        if tool_name in LOCAL_HANDLERS:
-            result = LOCAL_HANDLERS[tool_name](arguments)
-            return CallToolResult(content=[TextContent(type="text", text=json.dumps(result, ensure_ascii=False))])
-
-        handlers_mod = _load_handlers()
-        
-        # Map tool names to handler functions
-        handler_map = {
-            "maestro": "handle_maestro_async",
-            "maestro-plan": "handle_maestro_plan_async",
-            "skill-type-checker": "handle_type_checker_async",
-            "skill-unit-test-runner": "handle_unit_test_runner_async",
-            "skill-e2e-test-runner": "handle_e2e_test_runner_async",
-            "skill-build-orchestrator": "handle_build_orchestrator_async",
-            "skill-quality-gate-runner": "handle_quality_gate_runner_async",
-            "skill-coverage-analyzer": "handle_coverage_analyzer_async",
-            "skill-github-pages-deployer": "handle_github_pages_deployer_async",
-            "skill-release-orchestrator": "handle_release_orchestrator_async",
-            "skill-git-workflow-manager": "handle_git_workflow_manager_async",
-        }
-        
-        handler_name = handler_map.get(tool_name)
-        if not handler_name:
-            error_msg = f"Tool '{tool_name}' not found"
-            logger.warning(f"❌ {error_msg}")
-            return CallToolResult(
-                content=[TextContent(
-                    type="text",
-                    text=json.dumps({"status": "error", "error": error_msg})
-                )]
-            )
-        
-        handler = getattr(handlers_mod, handler_name, None)
-        if not handler:
-            error_msg = f"Handler '{handler_name}' not implemented"
-            logger.warning(f"❌ {error_msg}")
-            return CallToolResult(
-                content=[TextContent(
-                    type="text",
-                    text=json.dumps({"status": "error", "error": error_msg})
-                )]
-            )
-        
-        # Execute handler
-        if inspect.iscoroutinefunction(handler):
-            result = await handler(arguments)
-        else:
-            result = handler(arguments)
-        
-        logger.info(f"✅ Tool completed: {tool_name}")
-        
-        # Ensure result is a string
-        if isinstance(result, str):
-            text_result = result
-        else:
-            text_result = json.dumps(result)
-        
-        return CallToolResult(
-            content=[TextContent(type="text", text=text_result)]
-        )
-        
-    except Exception as e:
-        logger.error(f"❌ Tool error: {tool_name} - {str(e)}", exc_info=True)
-        return CallToolResult(
-            content=[TextContent(
-                type="text",
-                text=json.dumps({"status": "error", "error": str(e)})
-            )]
-        )
+        # Skills block on subprocesses for minutes; keep the stdio loop responsive.
+        return _text(await asyncio.to_thread(handler, params.arguments or {}))
+    except Exception as exc:
+        logger.exception("tool %s failed", params.name)
+        return _text({"status": "error", "error": str(exc)})
 
 
 async def handle_list_prompts(_ctx: Any, _params: PaginatedRequestParams) -> ListPromptsResult:
-    """Expose every .github/agents definition as an MCP prompt - MCP protocol method: prompts/list"""
     agents = agent_registry.load_agents()
     return ListPromptsResult(prompts=[
         Prompt(
@@ -358,7 +245,6 @@ async def handle_list_prompts(_ctx: Any, _params: PaginatedRequestParams) -> Lis
 
 
 async def handle_get_prompt(_ctx: Any, params: GetPromptRequestParams) -> GetPromptResult:
-    """Render an agent prompt with the MCP session protocol - MCP protocol method: prompts/get"""
     views, _ = _agent_views()
     view = views.get(params.name)
     if view is None:
@@ -370,29 +256,16 @@ async def handle_get_prompt(_ctx: Any, params: GetPromptRequestParams) -> GetPro
     )
 
 
-async def main():
-    """Main entry point - run MCP server over stdio"""
-    logger.info("Starting Maestro MCP Server...")
-    logger.info("Listening on stdio for MCP protocol messages")
-    
+async def main() -> None:
+    logging.basicConfig(stream=sys.stderr, level=logging.INFO, format="[%(asctime)s] [%(levelname)s] %(message)s")
     # MCP SDK 2.x: params_type must be a RequestParams model and handlers receive (ctx, params)
     server.add_request_handler("tools/list", PaginatedRequestParams, handle_list_tools)
     server.add_request_handler("tools/call", CallToolRequestParams, handle_call_tool)
     server.add_request_handler("prompts/list", PaginatedRequestParams, handle_list_prompts)
     server.add_request_handler("prompts/get", GetPromptRequestParams, handle_get_prompt)
-    
-    logger.info("Handlers registered")
-    
-    # Use stdio_server as the transport layer
-    # stdio_server yields a tuple (read_stream, write_stream)
     async with stdio_server() as (read_stream, write_stream):
-        logger.info("MCP Server is running and ready for protocol messages")
-        # Run server with the stdio streams
-        await server.run(
-            read_stream,
-            write_stream,
-            server.create_initialization_options()
-        )
+        logger.info("Maestro MCP server ready on stdio")
+        await server.run(read_stream, write_stream, server.create_initialization_options())
 
 
 if __name__ == "__main__":
