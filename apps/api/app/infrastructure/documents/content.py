@@ -18,9 +18,20 @@ def course_line(course: Course) -> str:
 
 
 @dataclass(frozen=True)
+class Contact:
+    location: str
+    phones: tuple[str, str]
+    email: str
+    linkedin: str
+    github: str
+    portfolio: str
+
+
+@dataclass(frozen=True)
 class DocumentContent:
     name: str
     title: str
+    contact: Contact
     contact_lines: tuple[str, str]
     portfolio: str
     profile: str
@@ -38,6 +49,7 @@ class DocumentContent:
         return cls(
             name=p.name,
             title=p.title,
+            contact=Contact(p.location, (p.phone1, p.phone2), p.email, p.linkedin, p.github, p.portfolio),
             contact_lines=(
                 f"{p.location}  |  {p.phone1}  |  {p.phone2}",
                 f"{p.email}  |  {display_url(p.linkedin)}  |  {display_url(p.github)}",

@@ -89,7 +89,7 @@ Al hacer merge del PR a `main`, GitHub Actions ejecuta `pnpm -F @mportafolio/web
 
 ### CU-5 · Cambiar el diseño del Word/PDF (no los datos)
 
-Edita `apps/api/app/infrastructure/documents/` (`pdf_renderer.py`, `docx_renderer.py`, `theme.py`) y regenera con `pnpm cv:generate`.
+Edita `apps/api/app/infrastructure/documents/` (`pdf_ats.py` para el PDF ATS de una columna, `pdf_visual.py` para el PDF Visual con cabecera y barra lateral, la base común `pdf_renderer.py`, `docx_renderer.py` y `theme.py`) y regenera con `pnpm cv:generate`.
 
 ## Arquitectura del backend (`apps/api/app`)
 

@@ -27,7 +27,7 @@ domain/      models.py, changes.py, validation.py  → CurriculumVitae aggregate
 infrastructure/
   requests/     text_request_parser.py, sections.py, request_inbox.py
   persistence/  json_codec.py, json_repository.py
-  documents/    content.py, pdf_renderer.py, docx_renderer.py, fingerprint_readers.py, theme.py
+  documents/    content.py, pdf_renderer.py (base), pdf_ats.py, pdf_visual.py, docx_renderer.py, fingerprint_readers.py, theme.py
   assets/       certificate_store.py
 ```
 

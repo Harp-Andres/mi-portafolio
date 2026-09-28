@@ -1,5 +1,27 @@
 import { test, expect } from '@playwright/test'
-import { promises as fs } from 'node:fs'
+import { promises as fs, readFileSync } from 'node:fs'
+
+type CvVariant = 'ats' | 'visual'
+
+interface CvOutput {
+  name: string
+  _meta: { documents: { variant: CvVariant; format: string; file: string }[] }
+}
+
+const cvOutput: CvOutput = JSON.parse(
+  readFileSync(new URL('../../../../cv/output/cv-data.json', import.meta.url), 'utf-8'),
+)
+
+const cvPdfFile = (variant: CvVariant): string => {
+  const doc = cvOutput._meta.documents.find((d) => d.variant === variant && d.format === 'pdf')
+  if (!doc) throw new Error(`cv-data.json lists no ${variant} PDF`)
+  return doc.file
+}
+
+const PDF_VARIANTS = [
+  { variant: 'ats', link: /formato ats pdf/i, title: `${cvOutput.name} - CV ATS` },
+  { variant: 'visual', link: /formato visual pdf/i, title: `${cvOutput.name} - CV Visual` },
+] as const
 
 test.describe('CV Download E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -18,56 +40,28 @@ test.describe('CV Download E2E Tests', () => {
     await expect(dialog.getByText(/selecciona el formato/i)).toBeVisible()
   })
 
-  test('should download PDF CV successfully', async ({ page }) => {
-    await page.getByRole('button', { name: /hoja de vida descargable/i }).first().click()
-    const atsLink = page.getByRole('link', { name: /formato ats pdf/i })
-    await expect(atsLink).toHaveAttribute('download', /\.pdf$/i)
+  for (const { variant, link, title } of PDF_VARIANTS) {
+    test(`should download the ${variant} PDF CV from its own option`, async ({ page }) => {
+      const expectedFile = cvPdfFile(variant)
+      await page.getByRole('button', { name: /hoja de vida descargable/i }).first().click()
 
-    const href = await atsLink.getAttribute('href')
-    expect(href).toBeTruthy()
-    expect(href).toMatch(/\/cv\/.*\.pdf$/i)
+      const option = page.getByRole('link', { name: link })
+      await expect(option).toHaveAttribute('download', expectedFile)
+      await expect(option).toHaveAttribute('href', new RegExp(`/cv/${expectedFile}$`))
 
-    const [download] = await Promise.all([
-      page.waitForEvent('download'),
-      atsLink.click(),
-    ])
+      const [download] = await Promise.all([page.waitForEvent('download'), option.click()])
 
-    await expect(download.failure()).resolves.toBeNull()
-    expect(download.suggestedFilename()).toMatch(/\.pdf$/i)
+      await expect(download.failure()).resolves.toBeNull()
+      expect(download.suggestedFilename()).toBe(expectedFile)
 
-    const downloadedPath = await download.path()
-    expect(downloadedPath).toBeTruthy()
+      const downloadedPath = await download.path()
+      expect(downloadedPath).toBeTruthy()
 
-    const body = await fs.readFile(downloadedPath!)
-    expect(body.byteLength).toBeGreaterThan(0)
-    expect(body.subarray(0, 4).toString()).toBe('%PDF')
-  })
-
-  test('should download visual PDF CV successfully', async ({ page }) => {
-    await page.getByRole('button', { name: /hoja de vida descargable/i }).first().click()
-
-    const visualLink = page.getByRole('link', { name: /formato visual pdf/i })
-    await expect(visualLink).toHaveAttribute('download', /\.pdf$/i)
-
-    const href = await visualLink.getAttribute('href')
-    expect(href).toBeTruthy()
-    expect(href).toMatch(/\/cv\/.*\.pdf$/i)
-
-    const [download] = await Promise.all([
-      page.waitForEvent('download'),
-      visualLink.click(),
-    ])
-
-    await expect(download.failure()).resolves.toBeNull()
-    expect(download.suggestedFilename()).toMatch(/\.pdf$/i)
-
-    const downloadedPath = await download.path()
-    expect(downloadedPath).toBeTruthy()
-
-    const body = await fs.readFile(downloadedPath!)
-    expect(body.byteLength).toBeGreaterThan(0)
-    expect(body.subarray(0, 4).toString()).toBe('%PDF')
-  })
+      const body = await fs.readFile(downloadedPath!, 'latin1')
+      expect(body.startsWith('%PDF')).toBe(true)
+      expect(body).toContain(`/Title (${title})`)
+    })
+  }
 
   test('should expose both semantic format options in dialog', async ({ page }) => {
     await page.getByRole('button', { name: /hoja de vida descargable/i }).first().click()
