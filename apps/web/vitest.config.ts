@@ -42,11 +42,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@components': path.resolve(__dirname, './src/components'),
-      '@utils': path.resolve(__dirname, './src/utils'),
-      '@hooks': path.resolve(__dirname, './src/hooks'),
       '@mportafolio/core': path.resolve(__dirname, '../../packages/core/src'),
-      '@mportafolio/ui': path.resolve(__dirname, '../../packages/ui/src'),
     }
   }
 })
