@@ -658,9 +658,9 @@ git push origin feat/add-puppeteer
 ## 📞 Contacto & Links
 
 - **Portfolio:** https://harp-andres.github.io/mi-portafolio/
-- **LinkedIn:** [Andrés Rodríguez](https://linkedin.com/in/your-profile)
+- **LinkedIn:** [Andrés Rodríguez Pisa](https://www.linkedin.com/in/andresrodriguezpisa-seniorqa/)
 - **GitHub:** [@Harp-Andres](https://github.com/Harp-Andres)
-- **Email:** andrés@example.com
+- **Email:** andresrdrgzps05@gmail.com
 
 ---
 
@@ -825,7 +825,7 @@ Asegurate de:
 ## 📞 Contacto
 
 - **Email:** andresrdrgzps05@gmail.com
-- **LinkedIn:** [Andrés Rodríguez Pisa](https://www.linkedin.com/in/AndresRodriguezPisa-CalidadDeSoftware)
+- **LinkedIn:** [Andrés Rodríguez Pisa](https://www.linkedin.com/in/andresrodriguezpisa-seniorqa/)
 - **Ubicación:** Bogotá - Colombia
 
 ## 📄 Licencia
