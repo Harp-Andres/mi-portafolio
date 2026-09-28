@@ -9,7 +9,7 @@ Role: frontend maintainers + `portfolio-test-manager` (see `.github/agents/`). M
 ## Tailwind CSS v4
 
 - v4 preflight no longer sets `cursor: pointer` on `<button>`. `index.css` restores it globally (`button:not(:disabled), [role="button"]:not(:disabled)`), so don't add `cursor-pointer` per button and don't remove that base rule.
-- Config lives in CSS (`@import "tailwindcss"` + `@layer`), not in a v3-style JS preset. Check the v4 docs before assuming a v3 utility or default still exists.
+- Config lives in CSS (`@import "tailwindcss"` + `@theme` + `@layer`). v4 silently ignores a `tailwind.config.ts` without `@config`, so don't add one: custom tokens go in `@theme` (e.g. `--animate-slideUp` + its `@keyframes`, which backs `animate-slideUp`). Check the v4 docs before assuming a v3 utility or default still exists.
 
 ## Routing (`App.tsx`)
 

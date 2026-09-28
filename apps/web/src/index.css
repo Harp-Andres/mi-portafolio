@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+@theme {
+  --animate-slideUp: slideUp 0.5s ease-out both;
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-slideUp {
+    animation: none;
+  }
+}
+
 @layer base {
   html,
   body {
@@ -26,14 +47,6 @@
 }
 
 @layer components {
-  .btn-primary {
-    @apply px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors;
-  }
-  
-  .btn-secondary {
-    @apply px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors;
-  }
-  
   .card {
     @apply bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow;
   }

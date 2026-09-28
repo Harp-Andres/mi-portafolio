@@ -61,12 +61,14 @@ describe('Certificates Component', () => {
             issuer: 'ISTQB',
             color: 'border-blue-500 bg-blue-50',
             icon: '✅',
+            filePath: null,
           },
           {
             title: 'Azure',
             issuer: 'Microsoft',
             color: 'border-sky-500 bg-sky-50',
             icon: '☁️',
+            filePath: null,
           },
         ]}
       />
