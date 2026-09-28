@@ -19,7 +19,7 @@ The `maestro` MCP server (`agent/1_interface/mcp_server.py`, registered in `.vsc
 4. Run the `skill-*` tools the plan lists. A failed or suspiciously fast result (< 1 s for tsc/vitest) must be re-checked with the native command (`pnpm -F @mportafolio/web lint`, `... test`) and reported.
 5. If the `maestro` server is not available, say so in the first reply and continue with native commands — never pretend a tool ran.
 
-When you add, rename or remove an agent, keep `SKILL_SPECIALIZED_OWNER` / `WORKFLOW_AGENT_PRIORITY` in `agent/1_interface/handlers.py` in sync; `agent/tests/test_agent_registry.py` fails otherwise.
+When you add, rename or remove an agent, keep `SKILL_OWNER` / `WORKFLOW_AGENTS` in `agent/2_orchestrator/workflows.py` in sync; `agent/tests/` fails otherwise.
 
 ## Behavior
 

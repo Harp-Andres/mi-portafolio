@@ -110,6 +110,19 @@ jobs:
       - name: Run backend tests
         run: uv run --project apps/api --extra dev --extra api python -m pytest apps/api/tests -q
 
+  # Maestro MCP server (agent/): agents <-> skills <-> workflows consistency, skill runner, CV tools
+  test-agent:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Run agent tests
+        run: uv run --project agent python -m pytest agent/tests -q
+
   # Runs in parallel with test-unit; Playwright itself shards its specs across 2 workers (see playwright.config.ts)
   test-e2e:
     timeout-minutes: 15
@@ -151,7 +164,7 @@ jobs:
           retention-days: 7
 
   build:
-    needs: [lint, test-unit, test-backend, test-e2e]
+    needs: [lint, test-unit, test-backend, test-agent, test-e2e]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -191,12 +204,12 @@ jobs:
 
   notify:
     if: always()
-    needs: [lint, test-unit, test-backend, test-e2e, build]
+    needs: [lint, test-unit, test-backend, test-agent, test-e2e, build]
     runs-on: ubuntu-latest
     steps:
       - name: Check workflow status
         run: |
-          if [ "${{ needs.lint.result }}" == "success" ] && [ "${{ needs.test-unit.result }}" == "success" ] && [ "${{ needs.test-backend.result }}" == "success" ] && [ "${{ needs.test-e2e.result }}" == "success" ] && [ "${{ needs.build.result }}" == "success" ]; then
+          if [ "${{ needs.lint.result }}" == "success" ] && [ "${{ needs.test-unit.result }}" == "success" ] && [ "${{ needs.test-backend.result }}" == "success" ] && [ "${{ needs.test-agent.result }}" == "success" ] && [ "${{ needs.test-e2e.result }}" == "success" ] && [ "${{ needs.build.result }}" == "success" ]; then
             echo "✅ Build & Tests PASSED - Ready for deployment!"
           else
             echo "❌ Build or Tests FAILED - Review logs"

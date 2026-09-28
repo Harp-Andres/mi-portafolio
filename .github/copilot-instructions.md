@@ -27,7 +27,7 @@ Regardless of which chat mode is selected, behave as the master orchestrator des
 4. **Auto-create reusable skills.** If you complete a multi-step task that is costly (≥3 tool calls or likely to repeat) and is not yet covered by an existing instructions/prompt file, propose creating one:
    - Domain-scoped conventions that should apply automatically whenever matching files are edited → new file in `.github/instructions/<topic>.instructions.md` with an `applyTo` glob (see existing ones for the pattern).
    - On-demand multi-step workflows invoked by name → new file in `.github/prompts/<name>.prompt.md`.
-   - Keep agent definitions in `.github/agents/` only; the Maestro server reads them from there. When adding or renaming an agent, update `SKILL_SPECIALIZED_OWNER` / `WORKFLOW_AGENT_PRIORITY` in `agent/1_interface/handlers.py` (guarded by `agent/tests/test_agent_registry.py`).
+   - Keep agent definitions in `.github/agents/` only; the Maestro server reads them from there. When adding or renaming an agent, update `SKILL_OWNER` / `WORKFLOW_AGENTS` in `agent/2_orchestrator/workflows.py` (guarded by `agent/tests/`).
 5. **Keep it portable.** Prefer `AGENTS.md`-style plain instructions over VS Code-only mechanisms when possible, since other tools (e.g. Claude Code) may read this repo later.
 
 ---
@@ -36,13 +36,10 @@ Regardless of which chat mode is selected, behave as the master orchestrator des
 
 ```
 agent/
-├── 1_interface/   CLI (Typer) + MCP Server (exposes 28 skills to IDEs)
-├── 2_orchestrator/ ReAct engine + LLM factory + workflow templates
-├── 3_memory/      Conversation history + RAG indexer + checkpoints
-├── 4_skills/      28 autonomous skills across 6 domains
-├── 5_guardrails/  Pydantic validation + security filters + rate limiter
-├── 6_telemetry/   Structured logging + metrics + tracing
-└── 7_state/       Execution state + persistence + recovery
+├── 1_interface/    MCP server (tools + agent prompts), agent registry, CV backend adapter
+├── 2_orchestrator/ Workflow catalog + maestro (agent -> skill plan and execution)
+├── 4_skills/       11 command skills (pnpm/uv/git/gh), see agent/README.md
+└── tests/          pytest guards for agents, skills and workflows
 
 apps/
 ├── web/           React + TypeScript + Tailwind + Vite + Playwright
@@ -58,7 +55,7 @@ packages/
 
 - Never commit runtime artifacts: logs (`*.log`, `*.err`), `output.txt`, `summary.txt`, coverage/, dist/, playwright-report/, test-results/, `.venv/`, `.state/`, `.checkpoints/`. These must stay gitignored.
 - Reusable setup/verification/maintenance scripts belong in `scripts/` (see `scripts/README.md`), never loose at the repo root. Repo-root `.ps1`/`.sh` files are only acceptable if they are one-off, throwaway, and never committed.
-- The `agent/` root only holds package metadata (`pyproject.toml`, `uv.lock`, `README.md`, `__init__.py`, `.env.example`) and the bootstrap/setup CLI entry points (`setup_agent.py`, `setup_bootstrap_cli.py`, `phase2_setup_agent.py`). All runtime logic lives inside the numbered layer folders (`1_interface/` … `7_state/`).
+- The `agent/` root only holds `pyproject.toml`, `uv.lock` and `README.md`. Runtime logic lives in the numbered layer folders (`1_interface/`, `2_orchestrator/`, `4_skills/`) and tests in `agent/tests/`.
 - **Never create markdown documentation directly at the repo root.** Follow `docs/DOCUMENTATION_GUIDE.md`:
   - End-user/external docs → `docs/` (e.g. `docs/QUICK_START.md`, `docs/SETUP.md`, `docs/MAESTRO_REFERENCE.md`).
   - Internal analysis, session summaries, phase reports → `.dev-docs/` (e.g. `.dev-docs/architecture/`, `.dev-docs/sessions/`).
@@ -69,31 +66,26 @@ packages/
 
 ---
 
-## 🚀 Workflows (via MCP or CLI)
+## 🚀 Workflows (maestro MCP)
 
-| Workflow | What it does | Command |
-|----------|-------------|---------|
-| `ci` | Lint → Type-check → Build → Unit Tests | `agent ci` |
-| `test` | Unit + E2E + Coverage report | `agent test` |
-| `deploy` | Build → Quality gate → GitHub Pages | `agent deploy` |
-| `portfolio-update` | PDF + DOCX + Excel from CV data | `agent docs` |
-| `quality` | Ruff + ESLint + mypy + type coverage | `agent ci --quality-only` |
-| `full-pipeline` | All 28 skills end-to-end | `@maestro workflow: full-pipeline` |
+Preview with `maestro-plan`, run with `maestro` (stops at the first failing skill).
+
+| Workflow | What it does |
+|----------|-------------|
+| `ci` | Install → type-check → unit + backend tests → build |
+| `test` | Unit + backend tests → E2E → coverage |
+| `deploy` | Quality gate → build + latest Pages deploy run (Pages deploys from `deploy.yml` on main) |
+| `portfolio-update` | CV backend in sync + web reads it → unit tests |
+| `quality` | Type-check → coverage → quality gate |
+| `full-pipeline` | Install, quality gate, E2E, CV sync, branch/PR status, Pages build |
 
 ---
 
-## 🔧 CLI Commands
+## 🔧 Commands
 
 ```bash
-# Install and run agent
-cd agent
-uv run python -m 1_interface.cli --help
-
-# Run workflows
-uv run python -m 1_interface.cli ci
-uv run python -m 1_interface.cli test
-uv run python -m 1_interface.cli deploy
-uv run python -m 1_interface.cli docs
+# Maestro agent tests
+uv run --project agent python -m pytest agent/tests -q
 
 # Web frontend (apps/web/)
 pnpm -F @mportafolio/web dev
@@ -113,14 +105,13 @@ cd apps/api && uv run python run.py
 ### Python (agent/, apps/api/)
 - **Version**: Python 3.11–3.12
 - **Package manager**: `uv` (NOT pip, NOT poetry)
-- **Framework**: Typer (CLI), FastAPI (API), Pydantic v2 (validation)
-- **Testing**: pytest + pytest-asyncio
-- **Linting**: ruff (linter + formatter)
-- **Typing**: Full type hints required. Use `Optional[T]` not `T | None`
+- **Framework**: MCP SDK (agent), FastAPI (API)
+- **Testing**: pytest
+- **Typing**: Full type hints required
 - **Path handling**: Always use `pathlib.Path`, never string concatenation
-- **Logging**: Use `from agent.config.constants import get_logger`, NOT `logging.getLogger`
-- **Skills**: All new skills MUST inherit from `agent.4_skills.base_skill.BaseSkill`
-- **Guardrails**: Any subprocess execution MUST go through `BaseSkill.run_command()`
+- **Logging**: `logging.getLogger(__name__)`; the MCP server logs to stderr (stdout is the protocol channel)
+- **Skills**: New skills subclass `CommandSkill` (`agent/4_skills/base_skill.py`) and declare `STEPS` from `repo_commands.py`
+- **Subprocesses**: Skills run commands only through `BaseSkill.run_command()`
 
 ### TypeScript (apps/web/, packages/)
 - **Version**: TypeScript 5.x strict mode
@@ -136,11 +127,11 @@ cd apps/api && uv run python run.py
 
 ## 🛡️ Security Rules (NEVER violate these)
 
-1. **NEVER** run shell commands directly — always use `BaseSkill.run_command()` (Pydantic-validated)
+1. **NEVER** build shell strings in agent code — skills pass argument lists to `BaseSkill.run_command()`
 2. **NEVER** commit secrets — use env vars from `.env` (local) or GitHub Secrets (CI/CD)
 3. **NEVER** modify `.github/workflows/` without running tests first
 4. **NEVER** push to `main` directly — always use PRs with passing CI
-5. **NEVER** skip `skill_validators.py` for user-provided input
+5. **NEVER** pass user-provided input to the filesystem or a subprocess unvalidated (e.g. `cv-apply` only accepts plain `.md`/`.txt` names)
 
 ---
 
@@ -148,10 +139,10 @@ cd apps/api && uv run python run.py
 
 ```
 @maestro (agent-master-portfolio)
-├── portfolio-cv-manager       → documents/ skills
-├── portfolio-test-manager     → testing/ skills
-├── portfolio-deployment-manager → deployment/ skills
-├── github-cicd-manager        → infrastructure/ + quality/ skills
+├── portfolio-cv-manager       → cv-* tools + cv_sync_checker
+├── portfolio-test-manager     → e2e_test_runner
+├── portfolio-deployment-manager → github_pages_deployer
+├── github-cicd-manager        → git_workflow_manager + release_orchestrator
 ├── setup-portability-manager  → setup/bootstrapping + MCP validation
 ├── devops-cicd-manager        → CI/CD engineering and release governance
 ├── software-architecture-manager → architecture and ADR governance
@@ -192,25 +183,23 @@ Before major changes, consult these context files first to reduce hallucinations
 | `.github/agents/*.agent.md` | Custom Agents: master + 10 specialized agent definitions (workspace-scoped, auto-appear in the agent picker) |
 | `.github/instructions/*.instructions.md` | Generic per-role skills, auto-applied by `applyTo` glob |
 | `.github/prompts/*.prompt.md` | On-demand multi-step workflows, invoked via `/name` |
-| `agent/4_skills/base_skill.py` | Abstract base for all 28 skills |
-| `agent/4_skills/skill_registry.py` | Skill discovery and registry |
-| `agent/4_skills/skill_routing.py` | Routes tasks to correct agent/skill |
 | `agent/1_interface/mcp_server.py` | MCP server (IDE connector: tools + agent prompts) |
 | `agent/1_interface/agent_registry.py` | Reads `.github/agents` for the MCP server (`maestro-context`, `maestro-agent`) |
-| `agent/1_interface/handlers.py` | All workflow handlers |
+| `agent/2_orchestrator/workflows.py` | Workflow → skills, skill → owner agent, workflow → agent order |
+| `agent/2_orchestrator/maestro.py` | Builds and runs the agent → skill plan |
+| `agent/4_skills/base_skill.py` | `BaseSkill` / `CommandSkill` / `SkillResult` |
+| `agent/4_skills/skill_registry.py` | Skill name → class |
 
 ---
 
 ## 🔁 Feedback Loop (Self-Correction)
 
 When a skill fails:
-1. `SkillResult.success=False` is returned with `errors[]` list
-2. `3_memory/checkpoint.py` captures the error state
-3. `7_state/state_manager.py` persists for retry
-4. The error is re-injected to Copilot as structured context
-5. Copilot proposes a fix using the structured error output
+1. It returns `status: failed|timeout` with the failing step, its command, exit code and output tail in `errors[]`
+2. `maestro` stops the workflow there and returns every stage run so far
+3. Fix the cause, re-run that `skill-*` tool, then the workflow
 
-**Always return structured `SkillResult` — never raw strings or exceptions.**
+**Skills return a structured `SkillResult` — they raise `SkillFailed` internally, never to the caller.**
 
 ---
 
@@ -218,17 +207,16 @@ When a skill fails:
 
 Before any PR:
 ```bash
-# Backend tests
-cd agent && uv run pytest tests/ -v
+# Agent + CV backend tests
+uv run --project agent python -m pytest agent/tests -q
+pnpm test:backend
 
-# Frontend unit tests
-cd apps/web && pnpm test
+# Frontend type-check, unit and E2E tests
+pnpm -F @mportafolio/web lint
+pnpm -F @mportafolio/web exec vitest run
+pnpm -F @mportafolio/web test:e2e
 
-# E2E tests
-cd apps/web && pnpm playwright test
-
-# Full quality gate
-cd agent && uv run python -m 1_interface.cli ci
+# Or everything CI runs, via MCP: skill-release-orchestrator
 ```
 
 ---
