@@ -1,22 +1,28 @@
-# Publicar el README de perfil de GitHub
+# Publicar el README de bienvenida (perfil GitHub)
 
-Este archivo es el contenido listo para el repositorio especial de perfil:
+Este contenido está **alineado con `mi-portafolio`** (misma bio, título, LinkedIn, portafolio y stack de la HV en `packages/core/src/data/cv-data.ts`).
 
-**`https://github.com/Harp-Andres/Harp-Andres`**
+El perfil de GitHub solo se muestra si el README vive en:
 
-## Pasos (2 minutos)
+**https://github.com/Harp-Andres/Harp-Andres**
 
-1. Abre: https://github.com/Harp-Andres/Harp-Andres/edit/main/README.md
-2. Reemplaza TODO el contenido con el de [`README.md`](./README.md) de esta carpeta.
-3. Commit en `main` (o abre un PR y mergea).
-4. Recarga tu perfil: https://github.com/Harp-Andres
+## Regenerar desde el monorepo
 
-> El README de perfil **solo** se muestra si vive en un repo llamado igual que tu usuario (`Harp-Andres/Harp-Andres`).
+```bash
+pnpm sync:github-profile
+```
 
-## Qué se corrigió
+Esto actualiza `docs/github-profile/README.md` leyendo campos clave de `cv-data.ts`.
 
-- Iconos vacíos: `skillicons.dev` devolvía cuadrados en blanco para IDs inválidos
-  (`serenity`, `appium`, `katalon`, `cucumber`, `junit`, `testng`, `azuredevops`,
-  `virtualbox`, `veamware`, `githubcopilot`, `intellij`).
-- Stack alineado a la HV (Playwright, Appium, Azure DevOps, Copilot, Claude, Cursor, etc.).
-- Stats de GitHub arreglados (faltaba `username=Harp-Andres`).
+## Publicar en el repo de bienvenida (2 minutos)
+
+1. Abre: https://github.com/Harp-Andres/Harp-Andres/edit/main/README.md  
+2. Reemplaza **todo** el contenido con el de [`README.md`](./README.md).  
+3. Commit en `main`.  
+4. Recarga: https://github.com/Harp-Andres  
+
+## Por qué se rompían los iconos
+
+`skillicons.dev` deja **cuadrados vacíos** si el ID no existe. El README anterior usaba IDs inválidos (`serenity`, `appium`, `katalon`, `cucumber`, `junit`, `testng`, `azuredevops`, `virtualbox`, `veamware`, `githubcopilot`, `intellij`).
+
+El generador solo usa IDs válidos de skillicons y completa el resto (Playwright, Copilot, Claude, Cursor, etc.) con badges de shields.io.

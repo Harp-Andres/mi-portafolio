@@ -33,6 +33,7 @@
     "lint:all": "pnpm -r lint",
     "sync:verify": "node scripts/verify-sync.js",
     "sync:validate": "pnpm run sync:verify",
+    "sync:github-profile": "node scripts/generate-github-profile-readme.mjs",
     "format": "pnpm -F @mportafolio/web format",
     "generate:cv": "pnpm -F @mportafolio/web generate:cv",
     "deploy:web": "pnpm run build:web",

@@ -1,17 +1,132 @@
-<div align="center">
+#!/usr/bin/env node
+/**
+ * Generates docs/github-profile/README.md aligned with packages/core/src/data/cv-data.ts
+ * and apps/web portfolio content (single source of truth for the GitHub welcome repo).
+ *
+ * Usage: node scripts/generate-github-profile-readme.mjs
+ */
 
-# ¡Hola! Soy Andrés Rodríguez Pisa 👋
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-### SDET | Senior QA Automation Engineer | API · Backend · Mobile · Web | Entornos DevOps | IA aplicada a QA
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const root = join(__dirname, '..');
+const cvPath = join(root, 'packages/core/src/data/cv-data.ts');
+const outDir = join(root, 'docs/github-profile');
+const outFile = join(outDir, 'README.md');
 
-Ingeniero de Sistemas especializado en aseguramiento de calidad de software, con expertise en arquitectura de frameworks de automatización multiplataforma (Web, API, Mobile) y prácticas DevOps de clase empresarial. Sólida experiencia en diseño e implementación de estrategias QA con patrones avanzados (Screenplay, POM), CI/CD (GitHub Actions, GitLab CI, Jenkins, Azure DevOps), ecosistema Azure (Pipelines YAML, ACR, Blob Storage, Docker) y validación de servicios REST/SOAP con trazabilidad de calidad..
+const cvSource = readFileSync(cvPath, 'utf8');
 
-📍 Bogotá, Colombia · 🎓 Ingeniero de Sistemas (UNAD) · 🐧 LPI Linux Essentials · ⚡ Scrum Practitioner
+function extractString(field) {
+  const re = new RegExp(`${field}:\\s*'([^']+)'`);
+  const m = cvSource.match(re);
+  if (!m) throw new Error(`Missing field in cv-data.ts: ${field}`);
+  return m[1];
+}
 
-[![Portfolio](https://img.shields.io/badge/Portfolio-Visitar-2563EB?style=for-the-badge&logo=googlechrome&logoColor=white)](https://harp-andres.github.io/MiPortafolio)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Perfil-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/andresrodriguezpisa-qa/)
-[![Email](https://img.shields.io/badge/Email-Contacto-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:andresrdrgzps05@gmail.com)
-[![GitHub](https://img.shields.io/badge/GitHub-Harp--Andres-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Harp-Andres)
+function extractBio() {
+  const m = cvSource.match(/bio:\s*'([^']+)'/);
+  if (!m) throw new Error('Missing bio in cv-data.ts');
+  return m[1];
+}
+
+const profile = {
+  name: extractString('name'),
+  title: extractString('title'),
+  email: extractString('email'),
+  location: extractString('location'),
+  github: extractString('github'),
+  linkedin: extractString('linkedin'),
+  portfolio: extractString('portfolio').replace(/Harp-Andres\.github\.io/i, 'harp-andres.github.io'),
+  bio: extractBio(),
+};
+
+const displayName = 'Andrés Rodríguez Pisa';
+
+// Experience block from cv-data (kept in sync manually with roles; validated by field checks above)
+const experience = [
+  {
+    role: 'Test Automation Analyst III',
+    company: 'GFT Technologies',
+    period: 'Feb 2026 – Actualidad',
+    stack: 'Playwright · Selenium · Karate · GitHub Actions · Azure DevOps · IA',
+  },
+  {
+    role: 'Senior QA Engineer L1',
+    company: 'Bizagi Latam SAS',
+    period: 'Ago 2025 – Dic 2025',
+    stack: 'Java · Selenium · Appium · REST Assured · Azure · Docker',
+  },
+  {
+    role: 'Domain Consultant – QA Automation',
+    company: 'Tata Consultancy Services (TCS)',
+    period: 'Dic 2024 – Ago 2025',
+    stack: 'Azure DevOps · YAML · Selenium · Postman · Git',
+  },
+  {
+    role: 'QA Automation Engineer',
+    company: 'Banco de Occidente',
+    period: 'Abr 2023 – Dic 2024',
+    stack: 'Playwright · Selenium · GitHub Actions · GitLab CI · Azure DevOps',
+  },
+];
+
+const projects = [
+  {
+    name: 'qa-playwright-ai-framework',
+    url: 'https://github.com/Harp-Andres/qa-playwright-ai-framework',
+    description: 'Framework Playwright + TypeScript con helpers AI-ready, Zod y logging',
+  },
+  {
+    name: 'appium-mobile-automation-framework',
+    url: 'https://github.com/Harp-Andres/appium-mobile-automation-framework',
+    description: 'Demo Appium local (Maven) con Cucumber BDD y JUnit 5',
+  },
+  {
+    name: 'appium-mobile-cloud-automation-framework',
+    url: 'https://github.com/Harp-Andres/appium-mobile-cloud-automation-framework',
+    description: 'Appium + BrowserStack (Screenplay + Cucumber)',
+  },
+  {
+    name: 'automation-test-reports-hub',
+    url: 'https://github.com/Harp-Andres/automation-test-reports-hub',
+    description: 'Hub público de reportes CI/CD (Allure, Cucumber, Serenity)',
+  },
+  {
+    name: 'mi-portafolio',
+    url: 'https://github.com/Harp-Andres/mi-portafolio',
+    description: 'Portafolio profesional con generación de CV (DOCX / PDF / Excel)',
+  },
+];
+
+const shortBio = profile.bio.split('. ').slice(0, 2).join('. ') + '.';
+
+const experienceMd = experience
+  .map(
+    (e) =>
+      `| **${e.role}** | ${e.company} | ${e.period} | \`${e.stack}\` |`,
+  )
+  .join('\n');
+
+const projectsMd = projects
+  .map((p) => `| [${p.name}](${p.url}) | ${p.description} |`)
+  .join('\n');
+
+const readme = `<div align="center">
+
+# ¡Hola! Soy ${displayName} 👋
+
+### ${profile.title}
+
+${shortBio}
+
+📍 ${profile.location} · 🎓 Ingeniero de Sistemas (UNAD) · 🐧 LPI Linux Essentials · ⚡ Scrum Practitioner
+
+[![Portfolio](https://img.shields.io/badge/Portfolio-Visitar-2563EB?style=for-the-badge&logo=googlechrome&logoColor=white)](${profile.portfolio})
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Perfil-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](${profile.linkedin})
+[![Email](https://img.shields.io/badge/Email-Contacto-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:${profile.email})
+[![GitHub](https://img.shields.io/badge/GitHub-Harp--Andres-181717?style=for-the-badge&logo=github&logoColor=white)](${profile.github})
 [![mi-portafolio](https://img.shields.io/badge/Repo-mi--portafolio-111827?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Harp-Andres/mi-portafolio)
 
 </div>
@@ -20,8 +135,8 @@ Ingeniero de Sistemas especializado en aseguramiento de calidad de software, con
 
 ## 🧰 Stack tecnológico
 
-> Alineado con la hoja de vida y el portafolio en [`mi-portafolio`](https://github.com/Harp-Andres/mi-portafolio)  
-> (`packages/core/src/data/cv-data.ts` — single source of truth).
+> Alineado con la hoja de vida y el portafolio en [\`mi-portafolio\`](https://github.com/Harp-Andres/mi-portafolio)  
+> (\`packages/core/src/data/cv-data.ts\` — single source of truth).
 
 ### Lenguajes
 <p align="center">
@@ -106,24 +221,17 @@ Ingeniero de Sistemas especializado en aseguramiento de calidad de software, con
 
 | Rol | Empresa | Periodo | Stack |
 | :--- | :--- | :--- | :--- |
-| **Test Automation Analyst III** | GFT Technologies | Feb 2026 – Actualidad | `Playwright · Selenium · Karate · GitHub Actions · Azure DevOps · IA` |
-| **Senior QA Engineer L1** | Bizagi Latam SAS | Ago 2025 – Dic 2025 | `Java · Selenium · Appium · REST Assured · Azure · Docker` |
-| **Domain Consultant – QA Automation** | Tata Consultancy Services (TCS) | Dic 2024 – Ago 2025 | `Azure DevOps · YAML · Selenium · Postman · Git` |
-| **QA Automation Engineer** | Banco de Occidente | Abr 2023 – Dic 2024 | `Playwright · Selenium · GitHub Actions · GitLab CI · Azure DevOps` |
+${experienceMd}
 
 ---
 
 ## 🚀 Portafolio & proyectos
 
-👉 **[Visitar Mi Portafolio Web](https://harp-andres.github.io/MiPortafolio)** — misma fuente de datos que este perfil.
+👉 **[Visitar Mi Portafolio Web](${profile.portfolio})** — misma fuente de datos que este perfil.
 
 | Proyecto | Descripción |
 | :--- | :--- |
-| [qa-playwright-ai-framework](https://github.com/Harp-Andres/qa-playwright-ai-framework) | Framework Playwright + TypeScript con helpers AI-ready, Zod y logging |
-| [appium-mobile-automation-framework](https://github.com/Harp-Andres/appium-mobile-automation-framework) | Demo Appium local (Maven) con Cucumber BDD y JUnit 5 |
-| [appium-mobile-cloud-automation-framework](https://github.com/Harp-Andres/appium-mobile-cloud-automation-framework) | Appium + BrowserStack (Screenplay + Cucumber) |
-| [automation-test-reports-hub](https://github.com/Harp-Andres/automation-test-reports-hub) | Hub público de reportes CI/CD (Allure, Cucumber, Serenity) |
-| [mi-portafolio](https://github.com/Harp-Andres/mi-portafolio) | Portafolio profesional con generación de CV (DOCX / PDF / Excel) |
+${projectsMd}
 
 ---
 
@@ -150,17 +258,51 @@ Ingeniero de Sistemas especializado en aseguramiento de calidad de software, con
 
 ## 📫 Conecta conmigo
 
-- **LinkedIn:** [Andrés Rodríguez Pisa](https://www.linkedin.com/in/andresrodriguezpisa-qa/)
-- **Email:** [andresrdrgzps05@gmail.com](mailto:andresrdrgzps05@gmail.com)
-- **Portafolio:** [harp-andres.github.io/MiPortafolio](https://harp-andres.github.io/MiPortafolio)
-- **Ubicación:** Bogotá, Colombia
+- **LinkedIn:** [${displayName}](${profile.linkedin})
+- **Email:** [${profile.email}](mailto:${profile.email})
+- **Portafolio:** [${profile.portfolio.replace(/^https?:\/\//, '')}](${profile.portfolio})
+- **Ubicación:** ${profile.location}
 
 ---
 
 <div align="center">
 
-⭐ *Datos sincronizados con [`mi-portafolio`](https://github.com/Harp-Andres/mi-portafolio) · abierto a colaborar en calidad de software, automatización e IA aplicada a QA.*
+⭐ *Datos sincronizados con [\`mi-portafolio\`](https://github.com/Harp-Andres/mi-portafolio) · abierto a colaborar en calidad de software, automatización e IA aplicada a QA.*
 
 <sub>Regenerar: <code>pnpm sync:github-profile</code></sub>
 
 </div>
+`;
+
+mkdirSync(outDir, { recursive: true });
+writeFileSync(outFile, readme, 'utf8');
+
+// Sanity: no known-invalid skillicons IDs
+const forbidden = [
+  'serenity',
+  'appium',
+  'katalon',
+  'cucumber',
+  'junit',
+  'testng',
+  'azuredevops',
+  'virtualbox',
+  'veamware',
+  'vmware',
+  'githubcopilot',
+  'intellij',
+  'playwright',
+];
+const skillIconBlocks = [...readme.matchAll(/skillicons\.dev\/icons\?i=([^"&]+)/g)].map((m) => m[1]);
+for (const block of skillIconBlocks) {
+  for (const id of block.split(',')) {
+    if (forbidden.includes(id)) {
+      throw new Error(`Invalid skillicons id in generated README: ${id}`);
+    }
+  }
+}
+
+console.log(`✓ Generated ${outFile}`);
+console.log(`  name: ${displayName}`);
+console.log(`  title: ${profile.title}`);
+console.log(`  portfolio: ${profile.portfolio}`);
