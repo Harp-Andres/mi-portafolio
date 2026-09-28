@@ -1,125 +1,57 @@
-# Setup & Installation Guide
+# Setup
 
-## Prerequisites
+## Requisitos
 
-- **Node.js**: v18+ (v24 recommended)
-- **pnpm**: v12+
-- **Git**: Latest version
+| Herramienta | Versión | Para qué |
+| --- | --- | --- |
+| Node.js | 20+ (CI usa 24) | Web |
+| pnpm | 12+ | Monorepo JS |
+| [uv](https://docs.astral.sh/uv/) | reciente | Backend de la HV (`apps/api`) y agente maestro (`agent/`); cada uno instala sus dependencias la primera vez |
+| GitHub CLI (`gh`) | reciente, autenticado | PRs y skills de GitHub del agente |
 
-## Quick Start
+## Instalación
 
-### 1. Clone Repository
 ```bash
-git clone https://github.com/Harp-Andres/MiPortafolio.git
-cd MiPortafolio
-```
-
-### 2. Install Dependencies
-```bash
+git clone https://github.com/Harp-Andres/mi-portafolio.git
+cd mi-portafolio
 pnpm install
+pnpm exec playwright install chromium   # solo para los tests E2E
 ```
 
-### 3. Python (only to change the CV)
-Install [uv](https://docs.astral.sh/uv/). The CV backend (`apps/api`) installs its own dependencies on first run.
+No hace falta ninguna variable de entorno.
 
-## Development Environment Setup
+## Día a día
 
-### Frontend Development
 ```bash
-# Start development server
-pnpm -C apps/web dev
-
-# Run tests
-pnpm -C apps/web test
-
-# Build for production
-pnpm -C apps/web build
+pnpm dev            # web en http://localhost:5173/mi-portafolio/
+pnpm lint           # TypeScript (tsc --noEmit)
+pnpm test           # tests unitarios (Vitest)
+pnpm test:e2e       # Playwright
+pnpm build          # build de producción (apps/web/dist)
+pnpm release        # todo lo que corre CI, antes de abrir un PR
 ```
 
-### CV backend (from the repo root)
+## Hoja de vida
+
 ```bash
-pnpm cv:status      # Word/PDF/JSON in sync? pending requests?
-pnpm cv:apply       # apply cv/input/requests/*.md|txt and regenerate the CV
-pnpm test:backend   # pytest
-pnpm dev:backend    # optional local HTTP API (docs/API.md)
+pnpm cv:status      # ¿Word/PDF y datos de la web están sincronizados? ¿hay solicitudes pendientes?
+pnpm cv:apply       # aplica cv/input/requests/*.md y regenera Word/PDF + cv/output/cv-data.json
+pnpm test:backend   # tests del backend (pytest)
 ```
 
-### Agent Development (Python)
-```bash
-cd agent
-python -m venv venv
-source venv/bin/activate
-pip install -e .
+Detalle en [CV_MANAGEMENT/WORKFLOW.md](CV_MANAGEMENT/WORKFLOW.md).
 
-# Run agent CLI
-python -m agent.cli
-```
+## Agente maestro (MCP)
 
-## Environment Configuration
+Cursor, VS Code y Claude Code ya lo tienen registrado (`.cursor/mcp.json`, `.vscode/mcp.json`, `.mcp.json`).
+Actívalo una vez en el IDE (Cursor: Settings → MCP → `maestro`). Verifícalo con `pnpm test:agent`.
+Referencia en [agent/README.md](../agent/README.md).
 
-The web and the CV backend need no environment variables.
+## Problemas conocidos
 
-### Agent (.env in agent/)
-```
-LOG_LEVEL=INFO
-STORAGE_PATH=./data
-```
-
-## Monorepo Structure
-
-```
-MiPortafolio/
-├── apps/
-│   ├── web/                 # React frontend (Vite): displays cv/output
-│   └── api/                 # Python CV backend: request → Word/PDF + cv-data.json
-├── packages/
-│   ├── ui/                  # React UI components
-│   ├── core/                # Shared utilities
-│   ├── api-client/          # API client library
-│   ├── backend/             # Backend utilities
-│   └── config/              # Shared configuration
-├── agent/                   # Python agent with 7-layer architecture
-├── docs/                    # Documentation
-└── scripts/                 # Automation scripts
-```
-
-## Troubleshooting
-
-### Dependencies Not Installing
-```bash
-# Clear pnpm cache and reinstall
-pnpm install --force
-```
-
-### Port Already in Use
-```bash
-# Change default ports in respective apps
-# Frontend: vite.config.ts - server.port
-# Backend: main.py - port parameter
-# Agent: .env - AGENT_PORT
-```
-
-### Node Modules Issues
-```bash
-# Prune and reinstall
-pnpm store prune
-pnpm install
-```
-
-## Documentation Links
-
-- [Architecture Overview](./MONOREPO_ARCHITECTURE.md)
-- [Contributing Guide](./CONTRIBUTING.md)
-- [API Documentation](./API.md)
-- [Agent Documentation](../agent/README.md)
-
-## Support
-
-For issues and questions:
-1. Check [existing issues](https://github.com/Harp-Andres/MiPortafolio/issues)
-2. Review development documentation in `.dev-docs/`
-3. Contact the development team
-
-## License
-
-See LICENSE file in root directory
+| Síntoma | Solución |
+| --- | --- |
+| `uv`: `invalid peer certificate` (proxy corporativo) | `$env:UV_SYSTEM_CERTS='1'` (PowerShell) o `export UV_SYSTEM_CERTS=1` |
+| `tsc`/`vitest`: "Cannot find module" tras clonar, mover o renombrar la carpeta | `pnpm install` desde la raíz |
+| Playwright no encuentra Chromium | `pnpm exec playwright install chromium` |
+| PowerShell muestra `NativeCommandError` con pnpm | Es stderr informativo de pnpm; revisa el exit code |

@@ -54,13 +54,13 @@ packages/
 ## 🧹 Project structure hygiene (enforced)
 
 - Never commit runtime artifacts: logs (`*.log`, `*.err`), `output.txt`, `summary.txt`, coverage/, dist/, playwright-report/, test-results/, `.venv/`, `.state/`, `.checkpoints/`. These must stay gitignored.
-- Reusable setup/verification/maintenance scripts belong in `scripts/` (see `scripts/README.md`), never loose at the repo root. Repo-root `.ps1`/`.sh` files are only acceptable if they are one-off, throwaway, and never committed.
+- Prefer root `package.json` scripts and `gh` over wrapper scripts. A script goes in `scripts/` (listed in `scripts/README.md`) only when it is reused and a one-line command is not enough; never loose at the repo root.
 - The `agent/` root only holds `pyproject.toml`, `uv.lock` and `README.md`. Runtime logic lives in the numbered layer folders (`1_interface/`, `2_orchestrator/`, `4_skills/`) and tests in `agent/tests/`.
-- **Never create markdown documentation directly at the repo root.** Follow `docs/DOCUMENTATION_GUIDE.md`:
-  - End-user/external docs → `docs/` (e.g. `docs/QUICK_START.md`, `docs/SETUP.md`, `docs/MAESTRO_REFERENCE.md`).
-  - Internal analysis, session summaries, phase reports → `.dev-docs/` (e.g. `.dev-docs/architecture/`, `.dev-docs/sessions/`).
-  - Agent/skill configuration → `.agent/` (only files with agent/skill frontmatter, not prose reports).
-  - The only markdown allowed at repo root is `README.md` and a short `QUICK_START.md` stub that links to `docs/QUICK_START.md`.
+- **Never create markdown documentation directly at the repo root** (only `README.md` lives there):
+  - Human docs → `docs/` (index in `docs/README.md`); package docs → that package's `README.md`.
+  - Agent guidance → `.github/` (agents, instructions, prompts, skills, context).
+  - Internal analysis, session notes, phase reports → `.dev-docs/` (gitignored, never committed).
+  - Document what the code does today; no version stamps, "production ready" badges or planned features.
 - Before finishing a task that adds new top-level files, verify they match this structure. If a new file doesn't fit an existing layer/folder, ask where it should go instead of defaulting to the repo root.
 - When moving/renaming a doc, grep the repo for old references (other docs, scripts, `.github/agents/*.agent.md`) and update them so links don't break.
 
@@ -84,18 +84,21 @@ Preview with `maestro-plan`, run with `maestro` (stops at the first failing skil
 ## 🔧 Commands
 
 ```bash
-# Maestro agent tests
-uv run --project agent python -m pytest agent/tests -q
+# Web (apps/web/)
+pnpm dev            # http://localhost:5173/mi-portafolio/
+pnpm lint           # tsc --noEmit
+pnpm test           # Vitest, single run
+pnpm test:e2e       # Playwright
+pnpm build
 
-# Web frontend (apps/web/)
-pnpm -F @mportafolio/web dev
-pnpm -F @mportafolio/web test
-pnpm -F @mportafolio/web lint     # tsc --noEmit
-pnpm -F @mportafolio/web build
+# CV backend (apps/api/) and maestro agent (agent/)
+pnpm cv:status; pnpm cv:apply
+pnpm test:backend
+pnpm test:agent
+pnpm dev:backend    # optional local HTTP API (docs/API.md)
 
-# API backend (apps/api/)
-cd apps/api && uv run pytest
-cd apps/api && uv run python run.py
+# Everything CI runs
+pnpm release
 ```
 
 ---
@@ -103,9 +106,9 @@ cd apps/api && uv run python run.py
 ## 📋 Code Conventions
 
 ### Python (agent/, apps/api/)
-- **Version**: Python 3.11–3.12
+- **Version**: Python 3.11+ (agent), 3.10+ (apps/api)
 - **Package manager**: `uv` (NOT pip, NOT poetry)
-- **Framework**: MCP SDK (agent), FastAPI (API)
+- **Framework**: MCP SDK (agent); apps/api is framework-free clean architecture, FastAPI only in its optional HTTP adapter
 - **Testing**: pytest
 - **Typing**: Full type hints required
 - **Path handling**: Always use `pathlib.Path`, never string concatenation
@@ -114,11 +117,11 @@ cd apps/api && uv run python run.py
 - **Subprocesses**: Skills run commands only through `BaseSkill.run_command()`
 
 ### TypeScript (apps/web/, packages/)
-- **Version**: TypeScript 5.x strict mode
+- **Version**: TypeScript 7 strict mode
 - **Package manager**: `pnpm` (NOT npm, NOT yarn)
-- **Framework**: React 19 + Vite + Tailwind CSS
+- **Framework**: React 19 + Vite + Tailwind CSS v4
 - **Testing**: Vitest (unit) + Playwright (E2E)
-- **Linting**: ESLint + Prettier (config in `packages/config/`)
+- **Linting**: `tsc --noEmit` (`pnpm lint`); there is no ESLint/Prettier config
 - **Components**: Functional components only, no class components
 - **State**: useState/useReducer for local, context for shared
 - **Imports**: Use absolute paths with `@/` prefix (configured in tsconfig)

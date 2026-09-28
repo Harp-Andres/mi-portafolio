@@ -1,236 +1,67 @@
 ---
 name: github-cli-automation
-description: PowerShell CLI scripts for testing, building, and managing CI/CD workflows in mi-portafolio. Use when the user asks to run tests, validate/build, trigger or check GitHub Actions workflows, or create/merge pull requests via the gh CLI.
+description: pnpm and gh CLI commands to test, build, open and track pull requests and GitHub Actions runs in mi-portafolio, with the PowerShell gotchas. Use when the user asks to run checks, validate/build, create/merge pull requests or inspect CI via the gh CLI.
 ---
 
 # GitHub CLI Automation Skill
 
-This skill enables the agent to interact with the mi-portafolio monorepo using CLI scripts for testing, building, and GitHub Actions management.
+Everything goes through the root `package.json` scripts and the `gh` CLI; there are no wrapper scripts.
+Through the maestro MCP the same checks are `skill-quality-gate-runner`, `skill-release-orchestrator` and
+`skill-git-workflow-manager`.
 
-## Available Scripts
+## Checks (repo root)
 
-### 1. Testing: `scripts/test.ps1`
+| Goal | Command |
+| --- | --- |
+| Type-check | `pnpm lint` (all packages: `pnpm lint:all`) |
+| Web unit tests (single run) | `pnpm test` |
+| E2E | `pnpm test:e2e` |
+| CV backend / maestro agent | `pnpm test:backend` / `pnpm test:agent` |
+| Everything CI runs | `pnpm release` |
+| Production build | `pnpm build` |
 
-Run tests in the monorepo with various modes.
-
-**When to use:**
-- Verifying code passes tests
-- Debugging test failures
-- Running tests with coverage
-- Watch mode for iterative development
-
-**Invocations:**
-```powershell
-# Unit tests
-.\scripts\test.ps1 -Command unit -Package apps/web
-
-# All tests with coverage
-.\scripts\test.ps1 -Command coverage
-
-# E2E tests
-.\scripts\test.ps1 -Command e2e
-
-# Watch mode
-.\scripts\test.ps1 -Command watch
-```
-
-**Exit codes:** 0 (success), 1 (failure)
-
----
-
-### 2. Building: `scripts/build.ps1`
-
-Build, lint, and validate code.
-
-**When to use:**
-- Before creating PRs (always run `validate`)
-- Building the application
-- Type checking
-- Cleaning artifacts
-
-**Invocations:**
-```powershell
-# Full validation pipeline
-.\scripts\build.ps1 -Command validate
-
-# Just build
-.\scripts\build.ps1 -Command build -Package apps/web
-
-# Lint
-.\scripts\build.ps1 -Command lint
-
-# Type check
-.\scripts\build.ps1 -Command type-check
-
-# Clean
-.\scripts\build.ps1 -Command clean
-```
-
-**Always use `validate` before PRs:**
-```powershell
-.\scripts\build.ps1 -Command validate
-```
-
----
-
-### 3. Workflow: `scripts/workflow.ps1`
-
-Manage GitHub Actions workflows.
-
-**When to use:**
-- Triggering workflows manually
-- Checking workflow status
-- Verifying branch protection
-- Viewing workflow logs
-- Waiting for completion
-
-**Invocations:**
-```powershell
-# Trigger workflow
-.\scripts\workflow.ps1 -Command run -Branch refactor/complete-monorepo-restructuring
-
-# Check status
-.\scripts\workflow.ps1 -Command status
-
-# List recent runs
-.\scripts\workflow.ps1 -Command list
-
-# View logs
-.\scripts\workflow.ps1 -Command logs -RunId 34917884678
-
-# Wait for completion
-.\scripts\workflow.ps1 -Command wait
-
-# Verify branch protection
-.\scripts\workflow.ps1 -Command verify-protection
-```
-
----
-
-### 4. Pull Requests: `scripts/pr.ps1`
-
-Manage pull requests.
-
-**When to use:**
-- Creating PRs
-- Checking PR status
-- Merging PRs
-- Reviewing PR details
-
-**Invocations:**
-```powershell
-# Create PR
-.\scripts\pr.ps1 -Command create `
-  -Base main `
-  -Title "fix: description" `
-  -Body "Detailed description"
-
-# List PRs
-.\scripts\pr.ps1 -Command list
-
-# Check status
-.\scripts\pr.ps1 -Command status -PRNumber 123
-
-# View details
-.\scripts\pr.ps1 -Command review -PRNumber 123
-
-# Merge (auto-validates checks)
-.\scripts\pr.ps1 -Command merge -PRNumber 123
-```
-
----
-
-## Standard Workflows
-
-### Fix Tests → Create PR → Merge
+## Branch → PR → merge
 
 ```powershell
-# 1. Run tests to see failures
-.\scripts\test.ps1 -Command unit
-
-# 2. Fix issues... (edit code)
-
-# 3. Verify fix
-.\scripts\test.ps1 -Command unit
-
-# 4. Full validation
-.\scripts\build.ps1 -Command validate
-
-# 5. Create PR
-.\scripts\pr.ps1 -Command create -Base main -Title "fix: test failures"
-
-# 6. Monitor
-.\scripts\pr.ps1 -Command status -PRNumber <number>
-
-# 7. Merge
-.\scripts\pr.ps1 -Command merge -PRNumber <number>
+git checkout main; git pull --ff-only origin main
+git checkout -b feat/my-change
+# ... edit, then stage explicit paths
+git add apps/web/src/components/Footer.tsx
+git commit -m "feat(web): short subject" -m "Why it changed."
+git push -u origin feat/my-change
+gh pr create --base main --title "feat(web): short subject" --body-file "$env:TEMP\pr-body.md"
+gh pr checks <number> --watch --interval 20
 ```
 
-### Deploy Feature Branch
+The user merges; never push to `main`.
 
-```powershell
-# 1. Validate locally
-.\scripts\build.ps1 -Command validate
+## CI
 
-# 2. Trigger workflow
-.\scripts\workflow.ps1 -Command run -Branch feature/my-feature
+| Goal | Command |
+| --- | --- |
+| Latest runs of a branch | `gh run list --branch <branch> --limit 5` |
+| Jobs and steps of a run | `gh run view <id>` |
+| Only the failing log lines | `gh run view <id> --log-failed` |
+| Re-run failed jobs | `gh run rerun <id> --failed` |
 
-# 3. Wait
-.\scripts\workflow.ps1 -Command wait
+Pipeline (`.github/workflows/deploy.yml`): install → lint, test-unit, test-backend, test-agent, test-e2e in
+parallel → build → deploy (push to `main` only) → notify.
 
-# 4. Check status
-.\scripts\workflow.ps1 -Command status
+## PowerShell gotchas
 
-# 5. Create PR if successful
-.\scripts\pr.ps1 -Command create -Base main -Title "feat: new feature"
-```
-
----
-
-## PowerShell notes (direct `gh` usage)
-
-- **PR bodies with Markdown:** backticks are PowerShell escape characters, so an inline `--body "…`code`…"` gets mangled (e.g. `unknown flag: --noEmit`). Write the body to a temp file and pass it with `--body-file`:
-  ```powershell
-  gh pr create --base main --head feat/my-branch --title "feat(web): ..." --body-file "$env:TEMP\pr-body.md"
-  Remove-Item "$env:TEMP\pr-body.md"
-  ```
-- **Commit messages:** use repeated `-m` flags for the subject and each bullet instead of a multi-line string.
-- **Staging:** add files explicitly (`git add <paths>`); never `git add -A`, because runtime artifacts such as `agent/.checkpoints/` may be present.
-- **`--jq` filters:** PowerShell mangles `\(...)` string interpolation (`unknown command "\\(.headSha[0:7])"`). Use the default table output (`gh run list --branch <b> --limit 3`) or pipe `--json` into `ConvertFrom-Json`.
-- **Diagnosing CI:** `gh run view <id>` lists jobs/steps; `gh run view <id> --log-failed` shows the failing assertion.
-- **After opening a PR:** `gh pr checks <number>` shows CI plus the Cursor Bugbot review. A pending status is normal right after creation.
+- **PR bodies with Markdown:** backticks are PowerShell escape characters, so an inline `--body "…`code`…"` gets
+  mangled (e.g. `unknown flag: --noEmit`). Write the body to a temp file, pass `--body-file`, then delete it.
+- **Commit messages:** repeated `-m` flags for subject and paragraphs instead of a multi-line string.
+- **Staging:** add files explicitly; never `git add -A` (tracked `.pyc` files and local logs may be modified).
+- **`--jq` filters:** PowerShell mangles `\(...)` interpolation and splits filters that contain inner double
+  quotes (`accepts at most 1 arg(s)`). Use the default table output or pipe `--json` into `ConvertFrom-Json`.
+- **pnpm 12:** there is no `-s`/`--silent` flag (`unexpected argument '-s'`); use `pnpm run <script>`.
+  Its stderr shows up as `NativeCommandError`; judge by the exit code.
+- **After opening a PR:** `gh pr checks` may say "no checks reported" for a few seconds; wait and retry.
 
 ## Requirements
 
-- PowerShell 5.1+ (Windows) or PowerShell Core 7+
-- GitHub CLI: `winget install --id GitHub.cli`
-- Git configured
-- pnpm v8+
-- Node.js v24+
+- GitHub CLI authenticated (`winget install --id GitHub.cli`, then `gh auth login`)
+- pnpm 12+, Node 20+ (CI uses 24), uv for the Python checks
 
-## Setup
-
-```powershell
-# Install GitHub CLI
-winget install --id GitHub.cli
-
-# Authenticate
-gh auth login
-
-# Allow scripts to run
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-
-## Key Information
-
-**Repository:** https://github.com/Harp-Andres/mi-portafolio (renamed from `MiPortafolio`; old URLs redirect, but always use the new one)
-
-**Branch Protection (main):**
-- 1 PR review required
-- Status checks: lint, test-unit, test-e2e, build, notify
-- Requires up-to-date before merge
-- Enforced for admins
-- Blocks force push and deletion
-
-**CI/CD Pipeline (see `.github/workflows/deploy.yml`):**
-1. install → 2. lint + (test-unit ‖ test-e2e in parallel) → 3. build → 4. deploy (main only) → 5. notify
+**Repository:** https://github.com/Harp-Andres/mi-portafolio (renamed from `MiPortafolio`; always use the new URL).
