@@ -16,7 +16,7 @@ export const Portfolio = () => {
             Demos Técnicas
           </h1>
           <p className="text-xl text-slate-300 animate-slideUp" style={{ animationDelay: '0.1s' }}>
-            Demos y frameworks que he manejado como SDET | QA Automation — no son productos productivos
+            Frameworks y demos de automatización que diseñé como SDET: arquitecturas de referencia para Web, API y Mobile, listas para integrarse en pipelines CI/CD.
           </p>
           <div className="mt-4 flex gap-4 animate-slideUp" style={{ animationDelay: '0.2s' }}>
             <a
@@ -65,7 +65,7 @@ export const Portfolio = () => {
                       </div>
                       {project.type === 'featured' && (
                         <span className="ml-4 px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold whitespace-nowrap">
-                          ⭐ Featured
+                          ⭐ Destacada
                         </span>
                       )}
                     </div>
@@ -185,16 +185,16 @@ export const Portfolio = () => {
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-br from-blue-600 to-blue-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-6">¿Interesado en Colaborar?</h2>
+          <h2 className="text-3xl font-bold mb-6">¿Buscas un SDET para tu equipo?</h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Tengo experiencia en SDET, QA Automation, Testing y DevOps. Siempre abierto a nuevas oportunidades.
+            Más de 8 años diseñando estrategias de calidad y frameworks de automatización Web, API y Mobile integrados en CI/CD. Conversemos sobre cómo puedo aportar a tu equipo.
           </p>
           <button
             type="button"
             onClick={goToSection('about')}
             className="inline-block bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg hover:bg-blue-50 transition-colors"
           >
-            Contactar
+            Hablemos
           </button>
         </div>
       </section>
