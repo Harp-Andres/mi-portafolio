@@ -4,7 +4,11 @@
 
 export {
   CV_DATA,
-  PROJECTS,
-  getTotalCertificationHours,
+  CV_DOCUMENTS,
+  CV_FINGERPRINT,
   getAllCertificates,
+  getCertificateLinks,
+  getCvDocument,
+  getTotalCertificationHours,
 } from './cv-data';
+export { PROJECTS } from './projects';

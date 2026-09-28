@@ -39,7 +39,7 @@ class E2ETestRunner(BaseSkill):
                 return "E2E tests: pnpm not found, skipping"
 
             result = self._run_command(
-                ["pnpm", "--filter", "web", "playwright", "test", "--reporter=list"],
+                ["pnpm", "--filter", "@mportafolio/web", "playwright", "test", "--reporter=list"],
                 timeout=180,
                 cwd=workspace,
             )

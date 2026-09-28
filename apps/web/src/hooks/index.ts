@@ -34,11 +34,4 @@ export const useScrollPosition = (): boolean => {
   return isScrolled
 }
 
-// Re-export API-related hooks
-export { useDocuments } from './useDocuments'
-export type { UseDocumentsState, UseDocumentsReturn } from './useDocuments'
-
-export { useSync } from './useSync'
-export type { UseSyncState, UseSyncReturn } from './useSync'
-
 export { useSectionNavigation } from './useSectionNavigation'

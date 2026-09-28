@@ -1,22 +1,10 @@
-#!/usr/bin/env python
-"""Run the MiPortafolio Backend API server"""
+"""Run the local HTTP adapter: uv run --project apps/api --extra api python apps/api/run.py"""
 
 import sys
+from pathlib import Path
+
 import uvicorn
-from mportafolio_backend.config import API_HOST, API_PORT, API_RELOAD
 
 if __name__ == "__main__":
-    print(f"🚀 Starting MiPortafolio Backend API")
-    print(f"   Host: {API_HOST}")
-    print(f"   Port: {API_PORT}")
-    print(f"   Reload: {API_RELOAD}")
-    print(f"\n📖 API Documentation: http://{API_HOST}:{API_PORT}/docs")
-    print(f"❤️  Health Check: http://{API_HOST}:{API_PORT}/health\n")
-
-    uvicorn.run(
-        "mportafolio_backend.api:app",
-        host=API_HOST,
-        port=API_PORT,
-        reload=API_RELOAD,
-        log_level="info"
-    )
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    uvicorn.run("app.interfaces.http:app", host="127.0.0.1", port=8000, reload=False)

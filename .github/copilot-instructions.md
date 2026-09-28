@@ -8,8 +8,14 @@ Todo lo relacionado con **programación** (código fuente en cualquier lenguaje,
 
 ## 🎼 Maestro Agent System
 
-This repository uses the **Maestro Agent** — a 7-layer Python agent system exposed via MCP.
-Invoke skills directly using the MCP tools registered in `.mcp.json`.
+This repository uses the **Maestro Agent** — a 7-layer Python agent system exposed via MCP (`maestro` server, registered in `.vscode/mcp.json`, `.cursor/mcp.json` and `.mcp.json`). Agents and MCP are connected both ways: every `.github/agents/*.agent.md` declares `'maestro/*'`, and the server reads those files and exposes each agent as an MCP prompt.
+
+**Automatic session start (every chat, every mode, before editing):**
+
+1. Call `maestro-context` → agent catalog, workflows, key paths and `consistency_issues`.
+2. Call `maestro-plan` with the workflow that matches the task (`ci`, `test`, `deploy`, `portfolio-update`, `quality`, `full-pipeline`).
+3. Delegate to (or load with `maestro-agent`) the owning agent and use its `skill-*` tools.
+4. Re-check failed or suspiciously fast tool results with the native `pnpm`/`uv` command and report them. If `maestro` isn't running, say so and continue natively.
 
 ## 🧠 Master delegation & skill auto-creation (always active, any mode)
 
@@ -21,7 +27,7 @@ Regardless of which chat mode is selected, behave as the master orchestrator des
 4. **Auto-create reusable skills.** If you complete a multi-step task that is costly (≥3 tool calls or likely to repeat) and is not yet covered by an existing instructions/prompt file, propose creating one:
    - Domain-scoped conventions that should apply automatically whenever matching files are edited → new file in `.github/instructions/<topic>.instructions.md` with an `applyTo` glob (see existing ones for the pattern).
    - On-demand multi-step workflows invoked by name → new file in `.github/prompts/<name>.prompt.md`.
-   - Never duplicate this logic into `agent/` (the Python Maestro MCP server) unless explicitly asked — that layer is a separate system, currently not wired into Copilot Chat.
+   - Keep agent definitions in `.github/agents/` only; the Maestro server reads them from there. When adding or renaming an agent, update `SKILL_SPECIALIZED_OWNER` / `WORKFLOW_AGENT_PRIORITY` in `agent/1_interface/handlers.py` (guarded by `agent/tests/test_agent_registry.py`).
 5. **Keep it portable.** Prefer `AGENTS.md`-style plain instructions over VS Code-only mechanisms when possible, since other tools (e.g. Claude Code) may read this repo later.
 
 ---
@@ -181,14 +187,15 @@ Before major changes, consult these context files first to reduce hallucinations
 
 | File | Purpose |
 |------|---------|
-| `.mcp.json` | MCP server config for all IDEs (VS Code, Cursor, Claude, IntelliJ) |
+| `.vscode/mcp.json` · `.cursor/mcp.json` · `.mcp.json` | `maestro` MCP registration for VS Code · Cursor · Claude Code |
 | `.github/agents/*.agent.md` | Custom Agents: master + 10 specialized agent definitions (workspace-scoped, auto-appear in the agent picker) |
 | `.github/instructions/*.instructions.md` | Generic per-role skills, auto-applied by `applyTo` glob |
 | `.github/prompts/*.prompt.md` | On-demand multi-step workflows, invoked via `/name` |
 | `agent/4_skills/base_skill.py` | Abstract base for all 28 skills |
 | `agent/4_skills/skill_registry.py` | Skill discovery and registry |
 | `agent/4_skills/skill_routing.py` | Routes tasks to correct agent/skill |
-| `agent/1_interface/mcp_server.py` | MCP server (IDE connector) |
+| `agent/1_interface/mcp_server.py` | MCP server (IDE connector: tools + agent prompts) |
+| `agent/1_interface/agent_registry.py` | Reads `.github/agents` for the MCP server (`maestro-context`, `maestro-agent`) |
 | `agent/1_interface/handlers.py` | All workflow handlers |
 
 ---

@@ -1,6 +1,6 @@
 /// <reference types="vitest/globals" />
 import { describe, it, expect } from 'vitest'
-import { CV_DATA } from '@mportafolio/core'
+import { CV_DATA, CV_DOCUMENTS, getCertificateLinks, getCvDocument } from '@mportafolio/core'
 
 describe('CV Data Constants', () => {
   it('should have required personal information', () => {
@@ -26,7 +26,7 @@ describe('CV Data Constants', () => {
   })
 
   it('should have non-empty profile description', () => {
-    expect(typeof CV_DATA.bio === 'string' || typeof CV_DATA.profile === 'string').toBe(true)
+    expect(CV_DATA.profile.length).toBeGreaterThan(50)
   })
 
   it('should have skills array with categories', () => {
@@ -44,9 +44,18 @@ describe('CV Data Constants', () => {
     expect(CV_DATA.education.length).toBeGreaterThan(0)
   })
 
-  it('should have certificates', () => {
-    expect(typeof CV_DATA.certificates === 'object').toBe(true)
-    expect(Object.keys(CV_DATA.certificates).length).toBeGreaterThan(0)
+  it('should derive the flat certificate list from every category, learning path and official cert', () => {
+    const courses = Object.values(CV_DATA.certificatesByCategory).flat()
+    const expected =
+      CV_DATA.officialCertifications.length + CV_DATA.learningPathsCertifications.length + courses.length
+    expect(getCertificateLinks()).toHaveLength(expected)
+    expect(getCertificateLinks()[0].title).toContain(CV_DATA.officialCertifications[0].issuer)
+  })
+
+  it('should expose the ATS and Visual documents published by the backend', () => {
+    expect(CV_DOCUMENTS).toHaveLength(4)
+    expect(getCvDocument('ats').file).toMatch(/_ATS_.*\.pdf$/)
+    expect(getCvDocument('visual', 'docx').file).toMatch(/_Visual_.*\.docx$/)
   })
 
   it('should have languages', () => {

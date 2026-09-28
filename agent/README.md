@@ -34,8 +34,8 @@ cp .env.example .env
 #   - OPENAI_API_KEY or ANTHROPIC_API_KEY (for LLM)
 nano .env  # or your preferred editor
 
-# 5. Merge MCP configuration (integrates with your IDE)
-uv run python ../scripts/merge_mcp_config.py
+# 5. MCP is already registered for VS Code (.vscode/mcp.json), Cursor (.cursor/mcp.json)
+#    and Claude Code (.mcp.json). Enable the `maestro` server once in your IDE.
 
 # 6. Verify setup
 uv run python -m 1_interface.cli --help
@@ -115,7 +115,7 @@ uv run mportafolio-agent --help
 
 ### Via MCP (IDE Integration)
 
-After running merge_mcp_config.py:
+Every session starts with `maestro-context` (agent catalog, workflows, key paths); agents are also exposed as MCP prompts.
 
 **In Cursor/Claude Code/VS Code MCP:**
 ```
@@ -134,7 +134,7 @@ After running merge_mcp_config.py:
 |------|---------|---------|
 | `.env` | API keys and settings | Copy from `.env.example`, add your keys |
 | `pyproject.toml` | Dependencies and Python version | Managed by uv (3.12 pinned) |
-| `.mcp.json` (repo root) | IDE MCP integration | Created by merge_mcp_config.py |
+| `.vscode/mcp.json` · `.cursor/mcp.json` · `.mcp.json` | MCP registration (VS Code · Cursor · Claude Code) | Versioned, `uv --directory agent run python 1_interface/mcp_server.py` |
 
 ### Environment Variables
 
@@ -318,10 +318,10 @@ OLLAMA_BASE_URL=http://localhost:11434
 
 ### "MCP server not appearing in IDE"
 ```bash
-# Re-run merge script
-cd ..
-python scripts/merge_mcp_config.py
+# Check the server starts (should log "MCP Server is running")
+uv --directory agent run python 1_interface/mcp_server.py
 
+# Cursor: Settings → MCP → enable "maestro". VS Code: MCP: List Servers → Start "maestro".
 # Reload IDE/editor
 # In Cursor: Cmd+Shift+P → Developer: Reload Window
 ```

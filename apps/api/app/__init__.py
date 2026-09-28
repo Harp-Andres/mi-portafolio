@@ -1,4 +1,3 @@
-"""MiPortafolio Backend - Python Package"""
+"""mi-portafolio CV backend: applies change requests and renders the Word/PDF CV + web data."""
 
-__version__ = "2.0.0"
-__author__ = "Andrés Rodríguez Pisa"
+__version__ = "3.0.0"

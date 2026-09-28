@@ -13,8 +13,9 @@ dist
 dist-ssr
 *.local
 
-# IDE
-.vscode
+# IDE (only the shared MCP registration is versioned)
+.vscode/*
+!.vscode/mcp.json
 .idea
 *.suo
 *.ntvs*
@@ -48,8 +49,15 @@ build
 # Development Documentation (Local Only)
 .dev-docs
 
-# Generated CV export snapshot
-scripts/hv/cv-export-data.json
+# CV downloads are copied from cv/output by scripts/hv/sync-cv-downloads.mjs
+apps/web/public/cv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
 
 agent/.state/
 agent/.checkpoints/

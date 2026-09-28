@@ -1,1 +1,1 @@
-"""Domain Layer - Business logic and entities"""
+"""CV domain: aggregate, change commands and business rules (no I/O)."""

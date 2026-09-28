@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Download, X } from 'lucide-react'
+import { cvDocumentUrl } from '../utils/download-cv'
 
 interface CVDownloadsProps {
   onDownloadATS: () => void
@@ -9,8 +10,8 @@ interface CVDownloadsProps {
 
 export const CVDownloads = ({ onDownloadATS: _onDownloadATS, onDownloadVisual: _onDownloadVisual, isLoading = false }: CVDownloadsProps) => {
   const [isOpen, setIsOpen] = useState(false)
-  const atsPath = `${import.meta.env.BASE_URL}cv/HV_2026_2_ATS_AndresRodriguez.pdf`
-  const visualPath = `${import.meta.env.BASE_URL}cv/HV_2026_2_Visual_AndresRodriguez.pdf`
+  const ats = cvDocumentUrl('ats')
+  const visual = cvDocumentUrl('visual')
 
   return (
     <>
@@ -59,8 +60,8 @@ export const CVDownloads = ({ onDownloadATS: _onDownloadATS, onDownloadVisual: _
             <div className="grid grid-cols-2 gap-4">
               {/* Opción ATS */}
               <a
-                href={atsPath}
-                download="HV_2026_2_ATS_AndresRodriguez.pdf"
+                href={ats.href}
+                download={ats.filename}
                 onClick={() => {
                   setTimeout(() => setIsOpen(false), 0)
                 }}
@@ -77,8 +78,8 @@ export const CVDownloads = ({ onDownloadATS: _onDownloadATS, onDownloadVisual: _
 
               {/* Opción Visual */}
               <a
-                href={visualPath}
-                download="HV_2026_2_Visual_AndresRodriguez.pdf"
+                href={visual.href}
+                download={visual.filename}
                 onClick={() => {
                   setTimeout(() => setIsOpen(false), 0)
                 }}

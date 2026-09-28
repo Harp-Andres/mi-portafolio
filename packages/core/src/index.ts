@@ -1,8 +1,8 @@
 /**
  * @mportafolio/core
- * Central data and types for all MiPortafolio applications
- * This is the single source of truth for all portfolio data
+ * Shared data and types for mi-portafolio apps.
+ * CV data is cv/output/cv-data.json, written by the Python backend (apps/api) with the Word/PDF.
  */
 
-export * from './data/cv-data';
+export * from './data';
 export * from './types';

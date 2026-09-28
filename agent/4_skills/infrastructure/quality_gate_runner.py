@@ -18,10 +18,10 @@ class QualityGateRunner(BaseSkill):
         failed_gates: list[str] = []
 
         gates = [
-            ("ESLint", ["pnpm", "--filter", "web", "lint"], workspace),
+            ("ESLint", ["pnpm", "--filter", "@mportafolio/web", "lint"], workspace),
             ("Ruff", ["uv", "run", "ruff", "check", "agent/"], workspace),
             ("TypeScript", ["pnpm", "tsc", "--noEmit"], workspace),
-            ("Frontend Build", ["pnpm", "--filter", "web", "build"], workspace),
+            ("Frontend Build", ["pnpm", "--filter", "@mportafolio/web", "build"], workspace),
         ]
 
         for gate_name, cmd, cwd in gates:

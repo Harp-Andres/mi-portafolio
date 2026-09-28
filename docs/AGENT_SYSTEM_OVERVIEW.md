@@ -11,7 +11,7 @@ Documento de referencia rápida: **qué piezas agénticas existen, dónde viven,
 | A | **Instrucciones nativas de Copilot Chat** | `.github/copilot-instructions.md`, `.github/prompts/*.prompt.md` | Configuración *nativa* de VS Code/Copilot. Se carga **automáticamente** en cada sesión de chat de este repo. | ✅ Activa (es lo que me rige a mí ahora mismo) |
 | B | **Custom Agents de workspace** | `.github/agents/*.agent.md` (versionado en el repo) | Los **10 agentes especializados** (maestro + 9), seleccionables desde el picker de VS Code para cualquiera que abra este repo — no depende del perfil de cada persona. Reemplaza por completo al antiguo `.agent/AGENTS.md` (eliminado; era solo un YAML de referencia, no ejecutable). | ✅ Real y versionado |
 | C | **Skills genéricos por rol** | `.github/instructions/*.instructions.md` (auto-aplicados por `applyTo`), `.github/prompts/*.prompt.md` (`/nombre`) y `.github/skills/*/SKILL.md` (bundle de conocimiento + assets) | Implementación real y portable de los "skills" de cada agente especializado. Cada skill tiene un dueño (el agente cuyo dominio coincide) — ver sección 3. | ✅ Activa |
-| D | **Servidor Python "Maestro MCP"** | `agent/` (7 capas: `1_interface/` … `7_state/`) | Una app Python independiente (CLI + intento de servidor MCP) con 28 skills. Se conecta a VS Code vía protocolo MCP si arranca correctamente. | ⚠️ Roto (bug de sintaxis en `mcp_server.py`, config JSON inválida en `.vscode/settings.json`, y dos configs MCP inconsistentes entre `.mcp.json` y `.vscode/settings.json`) |
+| D | **Servidor Python "Maestro MCP"** | `agent/` (7 capas: `1_interface/` … `7_state/`), registrado en `.vscode/mcp.json`, `.cursor/mcp.json` y `.mcp.json` | Servidor MCP (SDK 2.x) conectado en ambas direcciones con B: lee `.github/agents/*.agent.md` y los expone como *prompts* + herramientas `maestro-context` / `maestro-agent`; cada agente declara `'maestro/*'` y arranca la sesión llamando `maestro-context`. Incluye `cv-status` / `cv-apply` / `cv-generate`, que delegan en el backend de la HV (`apps/api`). | ✅ Activo (`agent/tests/test_agent_registry.py` vigila la consistencia agentes ↔ MCP) |
 | E | **Modos de chat personalizados (perfil de usuario)** | `%APPDATA%\Code\User\prompts\*.agent.md` (tu perfil local, no está en el repo) | `agent.agent.md` y `portfolio-master-orchestrator.agent.md` siguen siendo plantillas vacías (opcional rellenarlas si quieres modos personales adicionales). | 🟡 Opcional/vacíos |
 
 ---
@@ -56,6 +56,8 @@ Solo se usa un skill directamente (sin delegar) si ningún especialista es dueñ
 ```mermaid
 flowchart TD
     U[Tú escribes en el chat] --> M{"¿Qué modo/agente tienes seleccionado?"}
+    U --> CTX["Inicio de sesión automático:<br/>maestro-context → maestro-plan (D)"]
+    CTX --> M
     M -->|"agent-master-portfolio"| ORQ["Maestro: delega por dominio"]
     M -->|Modo por defecto u otro| CI["Copilot Chat"]
     ORQ --> SUB{"¿Coincide con uno de los 9 especialistas?"}
@@ -68,7 +70,8 @@ flowchart TD
     E1 -->|No y la tarea es costosa/repetible| CREATE["Propongo crear un nuevo skill"]
     APPLY --> DONE[Tarea resuelta]
     CREATE --> DONE
-    DONE -.->|"Si el usuario pide MCP explícito"| MCP["@maestro / skill-* (D, aún rota)"]
+    INVOKE --> MCP["Herramientas maestro del agente<br/>(skill-*, cv-status, cv-apply, cv-generate)"]
+    MCP --> DONE
 ```
 
 **Puntos de intervención tuyos, en orden de frecuencia:**
@@ -78,7 +81,7 @@ flowchart TD
 3. **Confirmación al crear un skill nuevo**: cuando detecte una tarea costosa/repetible sin skill existente, te propongo crear el `.instructions.md`/`.prompt.md`/`.github/skills/` antes de hacerlo — tú confirmas.
 4. **Confirmaciones de acciones sensibles**: te pido confirmación antes de un `git push`, borrar archivos, etc. — esto pasa sin importar el modo.
 5. **Edición manual de `.github/agents/*.agent.md`**: es ahora la única fuente de verdad de "quién hace qué" — editarla sí tiene efecto real en mi comportamiento (ya no hay un YAML paralelo desincronizable).
-6. **Aprobación de herramientas MCP** (si arreglamos D más adelante): cada vez que se invoque `@maestro` o un `skill-*`, VS Code te pedirá confirmar el permiso.
+6. **Habilitar/aprobar el servidor MCP**: la primera vez, VS Code (`.vscode/mcp.json`) y Cursor (Settings → MCP, `.cursor/mcp.json`) piden confirmar el servidor `maestro`; después arranca solo en cada sesión.
 
 ---
 
@@ -90,7 +93,7 @@ flowchart TD
 | A. `.github/prompts/*.prompt.md` | ✅ Sí, si escribes `/devops`, `/sdet`, etc. |
 | B. `.github/agents/*.agent.md` (10 agentes) | ✅ Sí, seleccionables desde el repo |
 | C. `.github/instructions/*.instructions.md` / `.github/skills/*/SKILL.md` | ✅ Sí, auto-aplicado por `applyTo` o bajo demanda |
-| D. Servidor MCP Maestro (`agent/`) | ❌ No — sigue roto/desconectado (pendiente) |
+| D. Servidor MCP Maestro (`agent/`) | ✅ Sí — primer paso de cada sesión (`maestro-context`) |
 | E. `agent.agent.md` / `portfolio-master-orchestrator.agent.md` (perfil) | 🟡 Siguen vacíos (opcional) |
 
-**Pendiente para una siguiente ronda:** arreglar D (bug de sintaxis + config JSON inválida + unificar `.mcp.json`/`.vscode/settings.json`) para que `@maestro` y sus skills Python sean herramientas MCP reales invocables, complementando (no reemplazando) los skills nativos de B/C.
+**Limitación conocida:** varios skills Python de D siguen siendo *stubs* (p. ej. `sync_verifier`, `portfolio_updater`); por eso el protocolo exige verificar con comandos nativos cualquier resultado fallido o sospechosamente rápido. Los generadores falsos de PDF/DOCX/Excel se retiraron del MCP y los reemplazan `cv-status` / `cv-apply` / `cv-generate`, que ejecutan el backend real (`python -m app`).

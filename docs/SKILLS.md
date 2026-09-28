@@ -101,43 +101,37 @@ NO usar `@tailwind directives`, v4 usa `@import`
 
 ---
 
-## Skill 3: CV Document Generation (DOCX)
+## Skill 3: CV Document Generation (PDF + DOCX)
 
 ### Cuando usar
-- Generar CV en formato DOCX para ATS
-- Actualizar plantilla de documentos
-- Exportar a PDF (manual con WPS Office)
+- Aplicar una solicitud de cambio (`.md`/`.txt`) y regenerar la HV (ATS y Visual, PDF y DOCX)
+- Cambiar el diseño de los documentos
 
-### Script de generación
+### Backend de la HV
 ```bash
 # Ubicación
-scripts/hv/generate-cv-sdet.mjs
+apps/api/app/   # dominio, casos de uso, parser, renderers (POO + SOLID)
 
-# Ejecutar
-node scripts/hv/generate-cv-sdet.mjs
+# Aplicar solicitudes de cv/input/requests (o MCP `cv-apply`)
+pnpm cv:apply
+# Re-renderizar sin cambiar datos (o MCP `cv-generate`)
+pnpm cv:generate
 
 # Output
-Hoja De Vida/HV_2026_ATS_AndesRodriguez.docx
+cv/output/HV_2026_2_{ATS,Visual}_AndresRodriguez.{pdf,docx}
+cv/output/cv-data.json   # datos que muestra la web
 ```
 
 ### Librerías usadas
-- `docx`: Generar documento DOCX
-- `packer`: Convertir a bytes para guardar
-- `Document`, `Packer`, `Paragraph`, `TextRun`: API de docx
+- `reportlab`: PDF
+- `python-docx`: DOCX
+- Declaradas en `apps/api/pyproject.toml`; `uv run --project apps/api` las instala. Flujo completo: `docs/CV_MANAGEMENT/WORKFLOW.md`.
 
 ### Formato ATS
 - Texto simple, sin gráficos complejos
 - Estructura: Contacto → Perfil → Habilidades → Experiencia → Educación → Certificaciones
 - Fuente estándar (Calibri, Arial)
 - Sin formatos especiales (colores, emojis, bordes)
-
-### Conversión DOCX → PDF
-**Método actual:** Manual
-1. Abrir `HV_2026_ATS_AndesRodriguez.docx` en WPS Office
-2. Archivo → Exportar a PDF
-3. Guardar como `HV_2026_ATS_AndesRodriguez.pdf`
-
-**Automatización futura:** Investigar `docx2pdf`, `libreoffice --headless`, o API externa
 
 ---
 
