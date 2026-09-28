@@ -13,7 +13,8 @@ from app.domain.validation import CurriculumValidator
 from app.infrastructure.assets.certificate_store import PublicCertificateStore
 from app.infrastructure.documents.docx_renderer import DocxCurriculumRenderer
 from app.infrastructure.documents.fingerprint_readers import DocxFingerprintReader, PdfFingerprintReader
-from app.infrastructure.documents.pdf_renderer import ATS_PDF, VISUAL_PDF, PdfCurriculumRenderer
+from app.infrastructure.documents.pdf_ats import AtsPdfRenderer
+from app.infrastructure.documents.pdf_visual import VisualPdfRenderer
 from app.infrastructure.persistence.json_repository import JsonCurriculumRepository
 from app.infrastructure.requests.request_inbox import FolderRequestInbox
 from app.infrastructure.requests.text_request_parser import TextChangeRequestParser
@@ -33,8 +34,8 @@ def build_renderers(paths: CurriculumPaths, stem: str = DOCUMENT_STEM) -> list[D
     out = paths.output_dir
     ats, visual = stem.format(label="ATS"), stem.format(label="Visual")
     return [
-        PdfCurriculumRenderer(out / f"{ats}.pdf", "ats", ATS_PDF),
-        PdfCurriculumRenderer(out / f"{visual}.pdf", "visual", VISUAL_PDF),
+        AtsPdfRenderer(out / f"{ats}.pdf"),
+        VisualPdfRenderer(out / f"{visual}.pdf"),
         DocxCurriculumRenderer(out / f"{ats}.docx", "ats", side_margin_pt=60),
         DocxCurriculumRenderer(out / f"{visual}.docx", "visual", side_margin_pt=54),
     ]
