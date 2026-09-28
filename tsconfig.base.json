@@ -15,9 +15,7 @@
     "jsx": "react-jsx",
     "paths": {
       "@mportafolio/core": ["./packages/core/src"],
-      "@mportafolio/core/*": ["./packages/core/src/*"],
-      "@mportafolio/web": ["./packages/web/src"],
-      "@mportafolio/web/*": ["./packages/web/src/*"]
+      "@mportafolio/core/*": ["./packages/core/src/*"]
     }
   },
   "include": ["packages/**/*.ts", "packages/**/*.tsx"],
