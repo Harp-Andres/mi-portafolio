@@ -12,7 +12,7 @@ Follow `.github/instructions/deployment-cicd.instructions.md` for the pipeline c
 Start every session with `maestro-context`, then `maestro-plan` for your workflow(s): `deploy`, `full-pipeline`. Your maestro tools: `skill-release-orchestrator`, `skill-git-workflow-manager`. Re-check failed or suspiciously fast results with native commands; if `maestro` is unavailable, say so and continue natively.
 
 ## Owned skill
-You own `.github/skills/github-cli-automation/SKILL.md` (scripts/test.ps1, build.ps1, workflow.ps1, pr.ps1). Use it directly for this domain instead of the master or other agents reimplementing it ad hoc.
+You own `.github/skills/github-cli-automation/SKILL.md` (pnpm checks, gh PR and CI commands, PowerShell gotchas). Use it directly for this domain instead of the master or other agents reimplementing it ad hoc.
 
 ## Constraints
 - Validate any workflow change locally (equivalent test/build/lint commands) before pushing — CI failures should be caught before they reach GitHub.

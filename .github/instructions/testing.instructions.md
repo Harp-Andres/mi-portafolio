@@ -14,5 +14,5 @@ Role: `portfolio-test-manager` / `sdet-quality-manager` (see `.github/agents/`).
 - Smooth scrolling (`behavior: 'smooth'`) barely advances in hidden/background tabs. Poll or use `toBeInViewport()` instead of a fixed short timeout.
 - If Playwright fails with `Executable doesn't exist … chrome-headless-shell`, install the browsers (`pnpm -F @mportafolio/web exec playwright install chromium`) before concluding anything. Where installing isn't possible (sandboxed agent), verify manually in the IDE browser and state that E2E will run in CI.
 - Run web tests with `pnpm -F @mportafolio/web test` (unit) / `pnpm -F @mportafolio/web test:e2e` (E2E) / `pnpm -F @mportafolio/web test:coverage` (coverage).
-- Run API tests with `cd apps/api && uv run pytest`.
+- Run CV backend tests with `pnpm test:backend` and maestro agent tests with `pnpm test:agent`.
 - Before declaring a fix done, re-run the affected suite and confirm the previously-failing test now passes — don't rely solely on lint/type-check.

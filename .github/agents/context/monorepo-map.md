@@ -3,7 +3,7 @@
 Top-level:
 - agent: maestro MCP server (interface, orchestrator and skills layers)
 - apps/web: React + Vite + Playwright
-- apps/api: FastAPI + pytest
+- apps/api: Python CV backend (request -> Word/PDF + cv-data.json) + pytest
 - packages: shared modules
 
 Core workflows:
