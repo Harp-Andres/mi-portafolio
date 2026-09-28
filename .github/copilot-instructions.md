@@ -46,9 +46,10 @@ agent/
 
 apps/
 ├── web/           React + TypeScript + Tailwind + Vite + Playwright
-└── api/           FastAPI (Python) + Pytest
+└── api/           CV backend (Python, clean architecture) + Pytest
 
-packages/          Shared code (core, ui, api-client, config)
+packages/
+└── core/          Shared TS data and types (reads cv/output/cv-data.json)
 ```
 
 ---
@@ -109,7 +110,7 @@ cd apps/api && uv run python run.py
 
 ## 📋 Code Conventions
 
-### Python (agent/, apps/api/, packages/backend/)
+### Python (agent/, apps/api/)
 - **Version**: Python 3.11–3.12
 - **Package manager**: `uv` (NOT pip, NOT poetry)
 - **Framework**: Typer (CLI), FastAPI (API), Pydantic v2 (validation)
