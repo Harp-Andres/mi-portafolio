@@ -4,78 +4,44 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { HashRouter } from 'react-router-dom'
 import { Navigation } from '../Navigation'
 
-vi.mock('../hooks', () => ({
+vi.mock('../../hooks', () => ({
   useScrollPosition: () => false,
   useSectionNavigation: () => ({
     goToSection: () => () => undefined,
   }),
 }))
 
-const renderWithRouter = (component: React.ReactElement) => {
-  return render(<HashRouter>{component}</HashRouter>)
-}
+const renderNavigation = () => render(<HashRouter><Navigation /></HashRouter>)
 
 describe('Navigation Component', () => {
-  const mockOnDownloadATS = vi.fn()
-  const mockOnDownloadVisual = vi.fn()
-
   it('should render navigation with logo', () => {
-    renderWithRouter(
-      <Navigation 
-        onDownloadATS={mockOnDownloadATS} 
-        onDownloadVisual={mockOnDownloadVisual} 
-      />
-    )
+    renderNavigation()
     expect(screen.getByText('INICIO')).toBeInTheDocument()
   })
 
   it('should render all navigation links', () => {
-    renderWithRouter(
-      <Navigation 
-        onDownloadATS={mockOnDownloadATS} 
-        onDownloadVisual={mockOnDownloadVisual} 
-      />
-    )
+    renderNavigation()
     expect(screen.getByText('Sobre Mi')).toBeInTheDocument()
     expect(screen.getByText('Habilidades')).toBeInTheDocument()
     expect(screen.getByText('Experiencia')).toBeInTheDocument()
     expect(screen.getByText('Educacion')).toBeInTheDocument()
   })
 
-  it('should have correct href values for navigation links', () => {
-    renderWithRouter(
-      <Navigation 
-        onDownloadATS={mockOnDownloadATS} 
-        onDownloadVisual={mockOnDownloadVisual} 
-      />
-    )
-    const aboutButton = screen.getByRole('button', { name: /sobre mi/i })
-    expect(aboutButton).toBeInTheDocument()
+  it('should render section links as buttons', () => {
+    renderNavigation()
+    expect(screen.getByRole('button', { name: /sobre mi/i })).toBeInTheDocument()
   })
 
   it('should toggle mobile menu on button click', () => {
-    renderWithRouter(
-      <Navigation 
-        onDownloadATS={mockOnDownloadATS} 
-        onDownloadVisual={mockOnDownloadVisual} 
-      />
-    )
-    
-    const menuButton = screen.getByRole('button', { name: /abrir menu principal/i })
-    expect(menuButton).toBeInTheDocument()
-    
-    fireEvent.click(menuButton)
-    // After click, mobile menu should appear
+    renderNavigation()
+
+    fireEvent.click(screen.getByRole('button', { name: /abrir menu principal/i }))
+
     expect(screen.getAllByText('Sobre Mi').length).toBeGreaterThan(1)
   })
 
   it('should expose a 44px touch target on the hamburger button', () => {
-    renderWithRouter(
-      <Navigation
-        onDownloadATS={mockOnDownloadATS}
-        onDownloadVisual={mockOnDownloadVisual}
-      />
-    )
+    renderNavigation()
     const menuButton = screen.getByRole('button', { name: /abrir menu principal/i })
     expect(menuButton).toHaveClass('min-h-11')
     expect(menuButton).toHaveClass('min-w-11')
@@ -83,12 +49,7 @@ describe('Navigation Component', () => {
   })
 
   it('should be fixed position', () => {
-    const { container } = renderWithRouter(
-      <Navigation 
-        onDownloadATS={mockOnDownloadATS} 
-        onDownloadVisual={mockOnDownloadVisual} 
-      />
-    )
+    const { container } = renderNavigation()
     const nav = container.querySelector('nav')
     expect(nav).toHaveClass('fixed')
     expect(nav).toHaveClass('w-full')

@@ -22,3 +22,26 @@ export function publicAssetFilename(filePath: string): string {
     return name
   }
 }
+
+/** Download a `public/` asset; if fetching fails, open it in a new tab instead. */
+export async function downloadPublicAsset(filePath: string): Promise<void> {
+  const url = resolvePublicAssetUrl(filePath)
+
+  try {
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(`Failed to download ${filePath}: HTTP ${response.status}`)
+    }
+
+    const objectUrl = URL.createObjectURL(await response.blob())
+    const link = document.createElement('a')
+    link.href = objectUrl
+    link.download = publicAssetFilename(filePath)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(objectUrl)
+  } catch {
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+}

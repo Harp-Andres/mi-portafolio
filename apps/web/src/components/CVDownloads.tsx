@@ -1,14 +1,8 @@
 import { useState } from 'react'
 import { Download, X } from 'lucide-react'
-import { cvDocumentUrl } from '../utils/download-cv'
+import { cvDocumentUrl } from '../utils/cv-document'
 
-interface CVDownloadsProps {
-  onDownloadATS: () => void
-  onDownloadVisual: () => void
-  isLoading?: boolean
-}
-
-export const CVDownloads = ({ onDownloadATS: _onDownloadATS, onDownloadVisual: _onDownloadVisual, isLoading = false }: CVDownloadsProps) => {
+export const CVDownloads = () => {
   const [isOpen, setIsOpen] = useState(false)
   const ats = cvDocumentUrl('ats')
   const visual = cvDocumentUrl('visual')
@@ -43,9 +37,8 @@ export const CVDownloads = ({ onDownloadATS: _onDownloadATS, onDownloadVisual: _
               <h3 id="cv-download-title" className="text-2xl font-bold text-gray-900">Descargar Hoja de Vida</h3>
               <button
                 onClick={() => setIsOpen(false)}
-                disabled={isLoading}
                 aria-label="Cerrar dialogo de descarga"
-                className="text-gray-500 hover:text-gray-900 disabled:opacity-50"
+                className="text-gray-500 hover:text-gray-900"
               >
                 <X size={24} />
               </button>

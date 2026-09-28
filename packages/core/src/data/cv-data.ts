@@ -36,7 +36,3 @@ export function getCertificateLinks(): CertificateLink[] {
     ...getAllCertificates().map((course) => ({ title: course.title, filePath: course.filePath })),
   ];
 }
-
-export function getTotalCertificationHours(): number {
-  return getAllCertificates().reduce((total, cert) => total + (cert.hours ?? 0), 0);
-}

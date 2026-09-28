@@ -9,6 +9,5 @@ export {
   getAllCertificates,
   getCertificateLinks,
   getCvDocument,
-  getTotalCertificationHours,
 } from './cv-data';
 export { PROJECTS } from './projects';

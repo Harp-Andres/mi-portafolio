@@ -4,12 +4,7 @@ import { Link } from 'react-router-dom'
 import { useScrollPosition, useSectionNavigation } from '../hooks'
 import { CVDownloads } from './CVDownloads'
 
-interface NavProps {
-  onDownloadATS: () => void
-  onDownloadVisual: () => void
-}
-
-export const Navigation = ({ onDownloadATS, onDownloadVisual }: NavProps) => {
+export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false)
   const isScrolled = useScrollPosition()
   const { goToSection } = useSectionNavigation()
@@ -73,9 +68,9 @@ export const Navigation = ({ onDownloadATS, onDownloadVisual }: NavProps) => {
             ))}
           </div>
 
-          {/* Download Button Desktop - using CVDownloads component */}
+          {/* Download Button Desktop */}
           <div className="hidden lg:flex items-center">
-            <CVDownloads onDownloadATS={onDownloadATS} onDownloadVisual={onDownloadVisual} />
+            <CVDownloads />
           </div>
 
           {/* Mobile menu button */}
@@ -121,7 +116,7 @@ export const Navigation = ({ onDownloadATS, onDownloadVisual }: NavProps) => {
                 )
               ))}
               <div className="pt-4 px-3">
-                <CVDownloads onDownloadATS={onDownloadATS} onDownloadVisual={onDownloadVisual} />
+                <CVDownloads />
               </div>
             </div>
           </div>

@@ -8,15 +8,9 @@ import {
   Education,
   Certificates,
 } from '@/components'
-import { getCertificateLinks } from '@mportafolio/core'
 import { CV_DATA } from '@/utils/cv-data'
 
-interface HomeProps {
-  onDownloadATS: () => void
-  onDownloadVisual: () => void
-}
-
-export const Home = (_props: HomeProps) => {
+export const Home = () => {
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -43,11 +37,10 @@ export const Home = (_props: HomeProps) => {
       <Skills categories={CV_DATA.skills} />
       <Experience items={CV_DATA.experience} />
       <Education items={CV_DATA.education} />
-      <Certificates 
+      <Certificates
         byCategory={CV_DATA.certificatesByCategory}
         learningPaths={CV_DATA.learningPathsCertifications}
         officialCertifications={CV_DATA.officialCertifications}
-        items={getCertificateLinks()}
       />
     </main>
   )

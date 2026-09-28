@@ -1,189 +1,43 @@
 # @mportafolio/web
 
-Professional portfolio website built with React 19, TypeScript 7, Vite 8, and Tailwind CSS.
+Portfolio site: React 19, TypeScript 7, Vite 8 and Tailwind CSS 4, deployed to
+[GitHub Pages](https://harp-andres.github.io/mi-portafolio/) under the base `/mi-portafolio/`.
 
-## 🎯 Features
+## Routes
 
-- ⚡ **React 19** with modern hooks and patterns
-- 🎨 **Tailwind CSS 4.0** with @import syntax
-- 🧪 **Vitest** - 65+ unit tests
-- 🎭 **Playwright** - 30+ E2E tests (chromium, firefox, webkit)
-- 📱 **Responsive Design** - Mobile, Tablet, Desktop viewports
-- 🚀 **GitHub Pages** - Auto-deployed on every commit
-- 🤖 **AI-Powered** - Integrated with GitHub Copilot & MCP
+| Route | Page |
+| --- | --- |
+| `/` | `pages/Home.tsx`: hero, about, skills, experience, education and certificates |
+| `/demos` | `pages/Portfolio.tsx`: catalog of technical demos (`/proyectos` redirects here) |
 
-## 🚀 Quick Start
+## Commands
 
-### Development
-```bash
-pnpm install
-pnpm dev
-```
+Run from the repo root (`pnpm dev`, `pnpm test`, ...) or here with `pnpm -F @mportafolio/web <script>`.
 
-Server runs at: http://localhost:5173
+| Script | What it does |
+| --- | --- |
+| `dev` | Syncs the CV files into `public/cv/`, then starts Vite on port 5173 |
+| `build` / `preview` | Same sync, type check and production build / serve `dist/` |
+| `lint` | `tsc --noEmit` |
+| `test` / `test:watch` / `test:ui` | Vitest once / in watch mode / with the UI |
+| `test:coverage` | Vitest with v8 coverage (what CI runs) |
+| `test:e2e` / `test:e2e:ui` | Playwright (Chromium); starts Vite itself ([specs](tests/e2e/README.md)) |
 
-### Testing
-
-Unit Tests:
-```bash
-pnpm test              # Run all tests
-pnpm test:ui           # Interactive UI
-pnpm test:coverage     # Coverage report
-```
-
-E2E Tests:
-```bash
-pnpm test:e2e          # Run all E2E tests
-pnpm test:e2e:ui       # Debug UI
-```
-
-### Build
-```bash
-pnpm build
-pnpm preview
-```
-
-### Linting
-```bash
-pnpm lint              # Type check
-pnpm format            # Format code
-```
-
-## 📁 Project Structure
+## Structure
 
 ```
 src/
-├── components/         React components
-│   ├── About.tsx
-│   ├── Navigation.tsx
-│   ├── Hero.tsx
-│   ├── Skills.tsx
-│   ├── Experience.tsx
-│   ├── Education.tsx
-│   ├── Certificates.tsx
-│   ├── CVDownloads.tsx
-│   └── Footer.tsx
-├── styles/            CSS and Tailwind styles
-├── App.tsx            Main component
-└── index.tsx          Entry point
+├── components/   sections, Navigation, CVDownloads, Footer, ScrollToTop (+ __tests__)
+├── hooks/        useAge, useScrollPosition, useSectionNavigation, useCopyClean
+├── pages/        Home, Portfolio
+├── utils/        cv-data, cv-document (CV PDF URLs), public-asset (base-aware assets)
+└── index.css     Tailwind import, theme (slideUp animation) and base styles
 ```
 
-## 🔗 Data Source
+## Data
 
-All data is imported from `@mportafolio/core`:
+The web only displays data. `CV_DATA` and `PROJECTS` come from `@mportafolio/core`; the CV part is
+`cv/output/cv-data.json`, written by the Python backend together with the Word/PDF. Change the CV with a
+request and `pnpm cv:apply` ([workflow](../../docs/CV_MANAGEMENT/WORKFLOW.md)).
 
-```typescript
-import { CV_DATA, PROJECTS } from '@mportafolio/core';
-```
-
-This ensures **100% synchronization** across all platforms:
-- Web (React) ✅
-- DOCX (python-docx) ✅
-- PDF (reportlab) ✅
-- Excel (openpyxl) ✅
-
-## 📦 Dependencies
-
-### Core
-- react: ^19.3.0
-- react-dom: ^19.3.0
-- react-router-dom: ^7.18.3
-
-### Styling
-- tailwindcss: ^4.0.0
-- lucide-react: ^1.45.0
-
-### Development
-- typescript: ^7.0.2
-- vite: ^8.3.0
-- vitest: ^5.0.0
-- @playwright/test: ^1.63.0
-
-## 🎨 Styling
-
-Uses Tailwind CSS 4.0 with @import syntax:
-
-```css
-@import "tailwindcss";
-```
-
-### Color Scheme
-- Primary: Blue
-- Accent: Cyan
-- Background: Gray-900
-- Text: Gray-50
-
-## 🧪 Testing
-
-### Unit Tests (Vitest)
-- Component rendering tests
-- Props validation
-- Event handler tests
-- Edge cases
-
-### E2E Tests (Playwright)
-- User workflows
-- Navigation flows
-- Form interactions
-- Responsive behavior
-
-### Coverage Target
-- Minimum: 80% coverage
-- Quality gates enforce this
-
-## 🚀 Deployment
-
-Automatically deployed to GitHub Pages on every commit to `main`:
-
-```
-https://harp-andres.github.io/mi-portafolio/
-```
-
-Deployment is handled by `.github/workflows/deploy.yml`
-
-## 🔧 Environment Variables
-
-Create `.env.local`:
-
-```env
-VITE_BASE_URL=/mi-portafolio/
-VITE_API_BASE=https://api.example.com
-```
-
-## 📝 Scripts
-
-```json
-{
-  "dev": "node ../../scripts/hv/sync-cv-downloads.mjs && vite",
-  "build": "node ../../scripts/hv/sync-cv-downloads.mjs && tsc && vite build",
-  "preview": "vite preview",
-  "test": "vitest",
-  "test:ui": "vitest --ui",
-  "test:coverage": "vitest --coverage",
-  "test:e2e": "playwright test",
-  "test:e2e:ui": "playwright test --ui",
-  "lint": "tsc --noEmit",
-  "format": "prettier --write 'src/**/*.{ts,tsx}'"
-}
-```
-
-`dev` and `build` first run `scripts/hv/sync-cv-downloads.mjs`, which copies the CV files rendered by the Python backend (`cv/output/`) into `public/cv/`. The web only displays: CV data comes from `cv/output/cv-data.json` through `@mportafolio/core`, and changes go through a request applied with `pnpm cv:apply` (see `docs/CV_MANAGEMENT/WORKFLOW.md`).
-
-## 🤝 Contributing
-
-1. Create feature branch
-2. Make changes
-3. Run tests: `pnpm test`
-4. Format code: `pnpm format`
-5. Commit with meaningful message
-6. Push to trigger deployment
-
-## 📄 License
-
-ISC
-
----
-
-**Version:** 2.0.0  
-**Status:** ✅ Production Ready  
-**Tech Stack:** React 19 + TypeScript 7 + Vite 8 + Tailwind CSS 4
+Assets under `public/` must be resolved with `resolvePublicAssetUrl` so they work under the Pages base path.
