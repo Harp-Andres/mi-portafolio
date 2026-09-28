@@ -171,8 +171,9 @@ export const CV_DATA: any = {
       category: 'IA & Productividad',
       skills: [
         { name: 'GitHub Copilot', level: 'expert' },
-        { name: 'MCP Playwright', level: 'expert' },
         { name: 'Claude (Anthropic)', level: 'expert' },
+        { name: 'Cursor', level: 'expert' },
+        { name: 'MCP Playwright', level: 'expert' },
         { name: 'Prompting Avanzado', level: 'expert' },
       ],
     },

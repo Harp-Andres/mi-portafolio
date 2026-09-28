@@ -27,7 +27,7 @@ export const CV_DATA = {
     { category: 'Reporting', items: 'Allure Report, Cucumber HTML, GitHub Pages Reports Hub' },
     { category: 'Bases de Datos', items: 'SQL Server, MySQL, Oracle, PostgreSQL, MongoDB' },
     { category: 'Gestión / Colaboración', items: 'Jira, Kanban, Azure Boards, liderazgo técnico, capacitación' },
-    { category: 'IA & Productividad', items: 'GitHub Copilot, MCP Playwright, MCP AppMod, prompting avanzado' },
+    { category: 'IA & Productividad', items: 'GitHub Copilot, Claude (Anthropic), Cursor, MCP Playwright, MCP AppMod, prompting avanzado' },
     { category: 'Scripting / Consola', items: 'PowerShell, Bash, CMD' },
     { category: 'Virtualización', items: 'VirtualBox, VMware, Linux, WPS Office, Microsoft Office, IntelliJ IDEA, VS Code' },
   ],
