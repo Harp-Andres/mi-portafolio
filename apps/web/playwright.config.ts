@@ -33,7 +33,8 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'pnpm dev',
+    // Not `pnpm dev`: pnpm 12 does not forward teardown signals, so vite outlives the run.
+    command: 'node ../../scripts/hv/sync-cv-downloads.mjs && vite',
     url: 'http://localhost:5173/mi-portafolio/',
     timeout: 120000, // 120 seconds to start server
     reuseExistingServer: !process.env.CI,

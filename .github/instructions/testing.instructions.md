@@ -13,6 +13,7 @@ Role: `portfolio-test-manager` / `sdet-quality-manager` (see `.github/agents/`).
 - `baseURL` is `http://localhost:5173/mi-portafolio/`. For sub-routes use **relative** paths: `page.goto('demos')`. A leading slash (`page.goto('/demos')`) resolves against the origin and drops `/mi-portafolio/`; only `'/'` happens to work because Vite redirects the root to its base.
 - Smooth scrolling (`behavior: 'smooth'`) barely advances in hidden/background tabs. Poll or use `toBeInViewport()` instead of a fixed short timeout.
 - If Playwright fails with `Executable doesn't exist … chrome-headless-shell`, install the browsers (`pnpm -F @mportafolio/web exec playwright install chromium`) before concluding anything. Where installing isn't possible (sandboxed agent), verify manually in the IDE browser and state that E2E will run in CI.
+- Keep Playwright's `webServer.command` calling `vite` directly, never `pnpm dev`: pnpm 12 doesn't forward the teardown signal, so vite keeps running and CI hits the 10-minute `globalTimeout` even though every test passed.
 - Run web tests with `pnpm -F @mportafolio/web test` (unit) / `pnpm -F @mportafolio/web test:e2e` (E2E) / `pnpm -F @mportafolio/web test:coverage` (coverage).
 - Run CV backend tests with `pnpm test:backend` and maestro agent tests with `pnpm test:agent`.
 - Before declaring a fix done, re-run the affected suite and confirm the previously-failing test now passes — don't rely solely on lint/type-check.
