@@ -148,7 +148,7 @@ jobs:
         run: node --version && pnpm --version
       
       - name: Install Playwright browsers (Chromium only)
-        run: npx playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium
 
       - name: Run E2E tests (2 parallel workers)
         run: pnpm -F @mportafolio/web test:e2e
