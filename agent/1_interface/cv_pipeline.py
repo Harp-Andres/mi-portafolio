@@ -20,12 +20,20 @@ from typing import Any, Dict, List
 from agent_registry import REPO_ROOT
 
 BACKEND_PROJECT = REPO_ROOT / "apps" / "api"
-REQUESTS_DIR = REPO_ROOT / "cv" / "input" / "requests"
 _SAFE_NAME = re.compile(r"^[\w.\- ]+\.(md|txt)$")
+_SAFE_VARIANT = re.compile(r"^[a-z0-9-]+$")
+DEFAULT_CV_VARIANT = "qa"
 
 
-def _backend(*args: str) -> subprocess.CompletedProcess | Dict[str, Any]:
-    command = ["uv", "run", "--project", str(BACKEND_PROJECT), "python", "-m", "app", *args]
+def _variant(arguments: Dict[str, Any]) -> str:
+    variant = str(arguments.get("variant") or DEFAULT_CV_VARIANT)
+    if not _SAFE_VARIANT.fullmatch(variant):
+        raise ValueError("variant must contain only lowercase letters, digits and hyphens")
+    return variant
+
+
+def _backend(variant: str, *args: str) -> subprocess.CompletedProcess | Dict[str, Any]:
+    command = ["uv", "run", "--project", str(BACKEND_PROJECT), "python", "-m", "app", *args, "--variant", variant]
     try:
         return subprocess.run(command, cwd=REPO_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=300)
     except FileNotFoundError:
@@ -48,7 +56,10 @@ def _report(result: subprocess.CompletedProcess | Dict[str, Any], next_step: str
 
 
 def cv_status(_arguments: Dict[str, Any]) -> Dict[str, Any]:
-    result = _backend("status", "--json")
+    try:
+        result = _backend(_variant(_arguments), "status", "--json")
+    except ValueError as error:
+        return {"status": "error", "error": str(error)}
     if isinstance(result, dict):
         return result
     if result.returncode != 0:
@@ -65,20 +76,31 @@ def cv_status(_arguments: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def cv_apply(arguments: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        variant = _variant(arguments)
+    except ValueError as error:
+        return {"status": "error", "error": str(error)}
     args: List[str] = ["apply"]
     content = arguments.get("content")
     if content:
         filename = arguments.get("filename") or "chat-request.md"
         if not _SAFE_NAME.match(filename):
             return {"status": "error", "error": "filename must be a plain .md/.txt name"}
-        REQUESTS_DIR.mkdir(parents=True, exist_ok=True)
-        request = REQUESTS_DIR / filename
+        request_dir = REPO_ROOT / "cv" / variant / "input" / "requests"
+        request_dir.mkdir(parents=True, exist_ok=True)
+        request = request_dir / filename
         request.write_text(content, encoding="utf-8")
         args.append(str(request))
     elif arguments.get("request_path"):
         args.append(str((REPO_ROOT / arguments["request_path"]).resolve()))
-    return _report(_backend(*args), "run `pnpm -F @mportafolio/web test` and review `git diff cv/`")
+    return _report(_backend(variant, *args), "run `pnpm -F @mportafolio/web test` and review `git diff cv/`")
 
 
 def cv_generate(_arguments: Dict[str, Any]) -> Dict[str, Any]:
-    return _report(_backend("generate"), "run `pnpm -F @mportafolio/web test` and review `git diff cv/`")
+    try:
+        return _report(
+            _backend(_variant(_arguments), "generate"),
+            "run `pnpm -F @mportafolio/web test` and review `git diff cv/`",
+        )
+    except ValueError as error:
+        return {"status": "error", "error": str(error)}

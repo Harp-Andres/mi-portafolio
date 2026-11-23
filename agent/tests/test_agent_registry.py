@@ -43,8 +43,8 @@ def test_context_tool_returns_protocol_and_paths(server):
     payload = json.loads(result.content[0].text)
     assert payload["status"] == "success"
     assert payload["protocol"]
-    assert payload["paths"]["cv_requests"].startswith("cv/input/requests/")
-    assert payload["paths"]["cv_web_data"].startswith("cv/output/cv-data.json")
+    assert payload["paths"]["cv_requests"].startswith("cv/qa/input/requests/")
+    assert payload["paths"]["cv_web_data"].startswith("cv/qa/output/cv-data.json")
     assert {a["name"] for a in payload["agents"]} >= {"portfolio-cv-manager", agent_registry.MASTER_AGENT}
 
 
@@ -99,7 +99,7 @@ def test_cv_status_comes_from_the_backend_and_is_in_sync(server):
 
 
 def test_cv_apply_reports_backend_errors_without_changing_the_cv(server, tmp_path):
-    state = cv_pipeline.REPO_ROOT / "cv" / "output" / "cv-data.json"
+    state = cv_pipeline.REPO_ROOT / "cv" / "qa" / "output" / "cv-data.json"
     before = state.read_bytes()
     bad_request = tmp_path / "bad.md"
     bad_request.write_text("## Vacaciones\n- dias: 3\n", encoding="utf-8")

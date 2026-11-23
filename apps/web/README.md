@@ -37,7 +37,7 @@ src/
 ## Data
 
 The web only displays data. `CV_DATA` and `PROJECTS` come from `@mportafolio/core`; the CV part is
-`cv/output/cv-data.json`, written by the Python backend together with the Word/PDF. Change the CV with a
+`cv/qa/output/cv-data.json`, written by the Python backend together with the Word/PDF. Change the CV with a
 request and `pnpm cv:apply` ([workflow](../../docs/CV_MANAGEMENT/WORKFLOW.md)).
 
 Assets under `public/` must be resolved with `resolvePublicAssetUrl` so they work under the Pages base path.

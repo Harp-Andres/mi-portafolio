@@ -1,6 +1,6 @@
 /// <reference types="vitest/globals" />
 import { describe, it, expect } from 'vitest'
-import { CV_DATA, CV_DOCUMENTS, getCertificateLinks, getCvDocument } from '@mportafolio/core'
+import { CV_DATA, CV_DOCUMENTS, CV_DOWNLOAD_PROFILES, getCertificateLinks, getCvDocument, getProfileCvDocument } from '@mportafolio/core'
 
 describe('CV Data Constants', () => {
   it('should have required personal information', () => {
@@ -56,6 +56,12 @@ describe('CV Data Constants', () => {
     expect(CV_DOCUMENTS).toHaveLength(4)
     expect(getCvDocument('ats').file).toMatch(/_ATS_.*\.pdf$/)
     expect(getCvDocument('visual', 'docx').file).toMatch(/_Visual_.*\.docx$/)
+  })
+
+  it('should expose separate QA and DevOps download profiles', () => {
+    expect(CV_DOWNLOAD_PROFILES.map((profile) => profile.id)).toEqual(['qa', 'devops-qa'])
+    expect(CV_DOWNLOAD_PROFILES.every((profile) => profile.documents.length === 4)).toBe(true)
+    expect(getProfileCvDocument('devops-qa', 'visual', 'docx').file).toMatch(/_Visual_.*\.docx$/)
   })
 
   it('should have languages', () => {

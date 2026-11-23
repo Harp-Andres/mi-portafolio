@@ -28,13 +28,13 @@ SESSION_PROTOCOL: List[str] = [
 ]
 
 KEY_PATHS: Dict[str, str] = {
-    "cv_requests": "cv/input/requests/ (.md/.txt change requests; applied ones go to cv/input/processed/)",
-    "cv_request_template": "cv/input/request-template.md",
+    "cv_requests": "cv/qa/input/requests/ (.md/.txt; applied requests go to cv/qa/input/processed/)",
+    "cv_request_template": "cv/qa/input/request-template.md",
     "cv_backend": "apps/api (python -m app status|apply|generate)",
-    "cv_output": "cv/output/ (Word/PDF + cv-data.json, all stamped with the same fingerprint)",
-    "cv_web_data": "cv/output/cv-data.json (read by packages/core)",
-    "cv_web_downloads": "apps/web/public/cv/ (synced from cv/output on dev/build)",
-    "certificates": "apps/web/public/certificados/",
+    "cv_output": "cv/qa/output/ (Word/PDF + cv-data.json, fingerprinted together)",
+    "cv_web_data": "cv/qa/output/cv-data.json (read by packages/core)",
+    "cv_web_downloads": "apps/web/public/cv/ (synced from cv/qa/output on dev/build)",
+    "certificates": "apps/web/public/certificados/ (shared by all CV variants)",
     "agents": ".github/agents/",
     "instructions": ".github/instructions/",
     "prompts": ".github/prompts/",

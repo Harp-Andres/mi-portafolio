@@ -1,6 +1,6 @@
 # CV Management
 
-- [WORKFLOW.md](./WORKFLOW.md): flujo de la hoja de vida por casos de uso (solicitud `.md`/`.txt` → backend Python `apps/api` → Word/PDF + `cv/output/cv-data.json` → web).
+- [WORKFLOW.md](./WORKFLOW.md): flujo de la hoja de vida por casos de uso (solicitud `.md`/`.txt` → backend Python `apps/api` → Word/PDF + `cv/qa/output/cv-data.json` → web).
 
 ## Dueño y herramientas
 

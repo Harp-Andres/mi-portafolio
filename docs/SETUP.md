@@ -35,7 +35,7 @@ pnpm release        # todo lo que corre CI, antes de abrir un PR
 
 ```bash
 pnpm cv:status      # ¿Word/PDF y datos de la web están sincronizados? ¿hay solicitudes pendientes?
-pnpm cv:apply       # aplica cv/input/requests/*.md y regenera Word/PDF + cv/output/cv-data.json
+pnpm cv:apply       # aplica cv/qa/input/requests/*.md y regenera Word/PDF + cv/qa/output/cv-data.json
 pnpm test:backend   # tests del backend (pytest)
 ```
 

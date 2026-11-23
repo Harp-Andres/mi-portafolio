@@ -46,7 +46,7 @@ apps/
 └── api/           CV backend (Python, clean architecture) + Pytest
 
 packages/
-└── core/          Shared TS data and types (reads cv/output/cv-data.json)
+└── core/          Shared TS data and types (reads cv/qa/output/cv-data.json)
 ```
 
 ---

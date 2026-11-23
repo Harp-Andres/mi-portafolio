@@ -1,8 +1,8 @@
 """Command line entry point used by pnpm scripts, the MCP server and the agents.
 
     python -m app status [--json]
-    python -m app apply [request.md ...]     # no paths = every pending file in cv/input/requests
-    python -m app generate
+    python -m app apply [request.md ...]     # no paths = every pending QA request
+    python -m app generate --variant devops-qa
 """
 
 from __future__ import annotations
@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 from app.composition import CurriculumBackend, build_backend
+from app.config import DEFAULT_CV_VARIANT, SUPPORTED_CV_VARIANTS
 from app.domain.errors import CurriculumError
 from app.interfaces.presenters import repo_relative as _rel
 from app.interfaces.presenters import status_payload
@@ -27,7 +28,7 @@ def cmd_status(backend: CurriculumBackend, args: argparse.Namespace) -> int:
     print(f"{'✅' if report.json_in_sync else '⚠️'} {_rel(backend.paths.state_file)}")
     for doc in report.documents:
         mark = "✅" if doc.in_sync else ("⚠️" if doc.exists else "❌")
-        print(f"{mark} cv/output/{doc.name}")
+        print(f"{mark} {_rel(backend.paths.output_dir / doc.name)}")
     for request in report.pending_requests:
         print(f"📝 pending request: {_rel(request)}")
     if not report.in_sync:
@@ -68,13 +69,16 @@ def build_parser() -> argparse.ArgumentParser:
 
     status = commands.add_parser("status", help="Are Word/PDF and web data in sync? Pending requests?")
     status.add_argument("--json", action="store_true", help="machine-readable output")
+    status.add_argument("--variant", choices=SUPPORTED_CV_VARIANTS, default=DEFAULT_CV_VARIANT, help="CV variant to use")
     status.set_defaults(handler=cmd_status)
 
     apply = commands.add_parser("apply", help="Apply .md/.txt change requests and regenerate everything")
-    apply.add_argument("requests", nargs="*", help="request files (default: pending files in cv/input/requests)")
+    apply.add_argument("requests", nargs="*", help="request files (default: pending files in the selected variant)")
+    apply.add_argument("--variant", choices=SUPPORTED_CV_VARIANTS, default=DEFAULT_CV_VARIANT, help="CV variant to use")
     apply.set_defaults(handler=cmd_apply)
 
     generate = commands.add_parser("generate", help="Re-render Word/PDF and web data from the current CV")
+    generate.add_argument("--variant", choices=SUPPORTED_CV_VARIANTS, default=DEFAULT_CV_VARIANT, help="CV variant to use")
     generate.set_defaults(handler=cmd_generate)
     return parser
 
@@ -84,7 +88,7 @@ def main(argv: list[str] | None = None, backend: CurriculumBackend | None = None
         sys.stdout.reconfigure(encoding="utf-8")
     args = build_parser().parse_args(argv)
     try:
-        return args.handler(backend or build_backend(), args)
+        return args.handler(backend or build_backend(variant=args.variant), args)
     except CurriculumError as error:
         print(f"❌ {error}")
         return 1

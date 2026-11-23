@@ -306,6 +306,11 @@
         "title": "Introducción a Microsoft 365 Copilot Chat (básico) — Microsoft",
         "filePath": null,
         "hours": 2
+      },
+      {
+        "title": "Claude Code 101 — Anthropic",
+        "filePath": "/certificados/Claude/Anthropic/ClaudeCode101.png",
+        "hours": 1
       }
     ]
   },
@@ -332,7 +337,7 @@
     }
   ],
   "_meta": {
-    "fingerprint": "0f4d9f4feb95f4641e7edfb6f2acdf2f2e34a75ec5f105d0fae7706c2b6053da",
+    "fingerprint": "ee01c0f9faf59e40acab561a3b5579caeba415dab1d567a7cdf4087bcf415b4d",
     "documents": [
       {
         "variant": "ats",
@@ -356,6 +361,6 @@
       }
     ],
     "generatedBy": "apps/api (python -m app)",
-    "note": "Generated with the Word/PDF in this folder. Change the CV with a request in cv/input/requests."
+    "note": "Generated with the Word/PDF in this folder. Change the CV through a request in this variant's input/requests directory."
   }
 }

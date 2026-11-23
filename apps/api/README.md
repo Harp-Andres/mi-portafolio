@@ -2,7 +2,7 @@
 
 Python backend that owns the Hoja de Vida processing. It takes a change request (`.md`/`.txt`),
 applies it to the CV, validates it, and renders the Word and PDF CV (ATS and Visual) plus
-`cv/output/cv-data.json`, the structured twin the web renders. User flow:
+`cv/qa/output/cv-data.json`, the structured twin the web renders. User flow:
 [`docs/CV_MANAGEMENT/WORKFLOW.md`](../../docs/CV_MANAGEMENT/WORKFLOW.md).
 
 ## Commands (from the repo root)
@@ -10,7 +10,7 @@ applies it to the CV, validates it, and renders the Word and PDF CV (ATS and Vis
 | Command | What it does |
 |---------|--------------|
 | `pnpm cv:status` | Are Word/PDF/JSON rendered from the same CV? Which requests are pending? (`--json` for machines) |
-| `pnpm cv:apply [-- path.md]` | Apply pending requests in `cv/input/requests/` (or the given files) and regenerate everything |
+| `pnpm cv:apply [-- path.md]` | Apply pending requests in `cv/qa/input/requests/` (or the given files) and regenerate everything |
 | `pnpm cv:generate` | Re-render Word/PDF/JSON from the current CV (after a layout change) |
 | `pnpm test:backend` | pytest suite (runs on a sandbox copy, never touches `cv/`) |
 | `pnpm dev:backend` | Optional local HTTP API over the same use cases (`/api/cv/status`, `/api/cv/requests`, ...) |
