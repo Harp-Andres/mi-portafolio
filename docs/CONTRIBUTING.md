@@ -15,7 +15,7 @@
 
 ## Reglas
 
-- La hoja de vida se cambia solo con solicitudes en `cv/input/requests/` + `pnpm cv:apply`; nunca a mano en `cv/output/`.
+- La hoja de vida se cambia solo con solicitudes en `cv/qa/input/requests/` + `pnpm cv:apply`; nunca a mano en `cv/qa/output/`.
 - Ningún secreto, `.env`, log, reporte, `dist/` ni `coverage/` en el repo.
 - En la raíz solo va `README.md`; la documentación va en `docs/` o en el `README.md` de cada paquete.
 - Código, commits y ramas en inglés; el contenido de la web y de la HV en español.

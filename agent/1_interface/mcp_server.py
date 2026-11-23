@@ -65,6 +65,10 @@ _SKILL_SCHEMA: Dict[str, Any] = {
     "type": "object",
     "properties": {"verbose": {"type": "boolean", "description": "Include the output of passing steps"}},
 }
+_CV_SCHEMA: Dict[str, Any] = {
+    "type": "object",
+    "properties": {"variant": {"type": "string", "enum": ["qa", "devops-qa"], "default": "qa"}},
+}
 
 
 def _workflow_schema(description: str, with_options: bool) -> Dict[str, Any]:
@@ -109,18 +113,18 @@ def get_tools() -> List[Tool]:
         Tool(
             name="cv-status",
             description=(
-                "[CV] CV backend status: are cv/output Word/PDF and cv-data.json (web data) rendered from the "
-                "same CV, and which change requests wait in cv/input/requests"
+                "[CV] CV backend status: are cv/qa/output Word/PDF and cv-data.json (web data) rendered from the "
+                "same CV, and which change requests wait in cv/qa/input/requests"
             ),
-            inputSchema=_EMPTY_SCHEMA,
+            inputSchema=_CV_SCHEMA,
         ),
         Tool(
             name="cv-apply",
             description=(
                 "[CV] Apply a CV change request with the Python backend and regenerate Word/PDF + web data. "
                 "Pass `content` (the .md request written from the user's chat instructions, format in "
-                "cv/input/request-template.md), or `request_path` (a .md/.txt the user points to). "
-                "With no arguments, applies every pending file in cv/input/requests."
+                "cv/qa/input/request-template.md), or `request_path` (a .md/.txt the user points to). "
+                "With no arguments, applies every pending file in cv/qa/input/requests."
             ),
             inputSchema={
                 "type": "object",
@@ -128,13 +132,14 @@ def get_tools() -> List[Tool]:
                     "content": {"type": "string", "description": "Request in the template format (## Curso, - titulo: ...)"},
                     "filename": {"type": "string", "description": "Name for `content`, e.g. 2026-09-docker.md"},
                     "request_path": {"type": "string", "description": "Repo-relative or absolute .md/.txt request"},
+                    "variant": {"type": "string", "enum": ["qa", "devops-qa"], "default": "qa"},
                 },
             },
         ),
         Tool(
             name="cv-generate",
-            description="[CV] Re-render cv/output Word/PDF and cv-data.json from the current CV (no data changes)",
-            inputSchema=_EMPTY_SCHEMA,
+            description="[CV] Re-render cv/qa/output Word/PDF and cv-data.json from the selected CV (no data changes)",
+            inputSchema=_CV_SCHEMA,
         ),
     ]
     orchestration = [

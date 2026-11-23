@@ -118,7 +118,7 @@ class _FakeCvChecker(CvSyncChecker):
 @pytest.mark.parametrize(
     ("status", "error"),
     [
-        ({"pendingRequests": ["cv/input/requests/x.md"], "inSync": True}, "Pending CV requests"),
+        ({"pendingRequests": ["cv/qa/input/requests/x.md"], "inSync": True}, "Pending CV requests"),
         ({"pendingRequests": [], "inSync": False}, "out of sync"),
     ],
 )

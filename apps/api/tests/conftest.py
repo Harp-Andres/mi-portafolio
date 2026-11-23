@@ -12,7 +12,7 @@ from app.composition import CurriculumBackend, build_backend
 from app.config import REPO_ROOT, CurriculumPaths
 from app.infrastructure.persistence.json_codec import CurriculumJsonCodec
 
-REAL_STATE = REPO_ROOT / "cv" / "output" / "cv-data.json"
+REAL_STATE = REPO_ROOT / "cv" / "qa" / "output" / "cv-data.json"
 
 
 @pytest.fixture

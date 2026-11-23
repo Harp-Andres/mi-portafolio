@@ -7,6 +7,8 @@ export type {
   CVDocument,
   CVDocumentFormat,
   CVDocumentVariant,
+  CVDownloadProfile,
+  CVProfile,
   CertificateLink,
   CourseCertificate,
   Education,

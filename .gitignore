@@ -49,7 +49,7 @@ build
 # Development Documentation (Local Only)
 .dev-docs
 
-# CV downloads are copied from cv/output by scripts/hv/sync-cv-downloads.mjs
+# CV downloads are copied from cv/qa/output by scripts/hv/sync-cv-downloads.mjs
 apps/web/public/cv/
 
 # Python

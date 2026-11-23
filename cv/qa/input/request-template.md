@@ -1,7 +1,7 @@
 # Solicitud de cambio de la HV
 
 <!--
-Copia este archivo a cv/input/requests/<fecha>-<tema>.md (o .txt), deja solo las secciones que
+Copia este archivo a cv/qa/input/requests/<fecha>-<tema>.md (o .txt), deja solo las secciones que
 necesites y ejecuta `pnpm cv:apply`. Puedes repetir una sección (p. ej. dos "## Curso").
 Formato completo: docs/CV_MANAGEMENT/WORKFLOW.md
 -->

@@ -9,7 +9,7 @@ from base_skill import CommandSkill, SkillFailed, SkillRequest
 class CvSyncChecker(CommandSkill):
     NAME = "cv_sync_checker"
     DESCRIPTION = (
-        "[CV] Fail if CV change requests are pending or cv/output (Word/PDF/cv-data.json) is out of sync, "
+        "[CV] Fail if CV change requests are pending or cv/qa/output (Word/PDF/cv-data.json) is out of sync, "
         "then check that the web reads the current CV"
     )
     STEPS = (cmd.CV_WEB_SYNC,)
@@ -22,5 +22,5 @@ class CvSyncChecker(CommandSkill):
         if status["pendingRequests"]:
             raise SkillFailed(f"Pending CV requests (apply them with cv-apply): {status['pendingRequests']}")
         if not status["inSync"]:
-            raise SkillFailed("cv/output is out of sync with the CV; run cv-generate")
+            raise SkillFailed("cv/qa/output is out of sync with the CV; run cv-generate")
         return "\n".join(["PASS CV backend status: in sync, no pending requests", self.run_steps(self.STEPS, request)])

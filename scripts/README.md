@@ -5,7 +5,7 @@ and the `gh` CLI; add a script here only when it is reused and a one-line `pnpm`
 
 | Script | Run by | What it does |
 | --- | --- | --- |
-| `hv/sync-cv-downloads.mjs` | `pnpm dev`, `pnpm build`, `pnpm sync:cv` | Copies the Word/PDF from `cv/output/` to `apps/web/public/cv/` (gitignored) so the web serves the same CV the backend rendered |
+| `hv/sync-cv-downloads.mjs` | `pnpm dev`, `pnpm build`, `pnpm sync:cv` | Copies the Word/PDF from `cv/qa/output/` to `apps/web/public/cv/` (gitignored) so the web serves the same CV the backend rendered |
 
 ## Common commands
 

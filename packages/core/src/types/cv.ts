@@ -1,5 +1,5 @@
 /**
- * CV data contract: the shape of cv/output/cv-data.json, written by the Python backend
+ * CV data contract: the shape of cv/qa/output/cv-data.json, written by the Python backend
  * (apps/api/app/infrastructure/persistence/json_codec.py) together with the Word/PDF.
  */
 
@@ -69,10 +69,18 @@ export interface CVData {
 
 export type CVDocumentVariant = 'ats' | 'visual';
 export type CVDocumentFormat = 'pdf' | 'docx';
+export type CVProfile = 'qa' | 'devops-qa';
 
-/** A CV file rendered by the backend into cv/output and served by the web under /cv/. */
+/** A CV file rendered by the backend into the selected output and served by the web under /cv/. */
 export interface CVDocument {
   variant: CVDocumentVariant;
   format: CVDocumentFormat;
   file: string;
+}
+
+export interface CVDownloadProfile {
+  id: CVProfile;
+  label: string;
+  description: string;
+  documents: CVDocument[];
 }

@@ -1,4 +1,4 @@
-"""cv/input/requests holds pending requests; applied ones are archived in cv/input/processed."""
+"""cv/qa/input/requests holds pending requests; applied ones are archived in processed/."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""CV state stored as cv/output/cv-data.json, next to the Word/PDF it was rendered into."""
+"""CV state stored in the selected variant output, next to its rendered Word/PDF files."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ class JsonCurriculumRepository(CurriculumRepository):
             "fingerprint": cv.fingerprint(),
             "documents": [{"variant": d.variant, "format": d.format, "file": d.path.name} for d in documents],
             "generatedBy": "apps/api (python -m app)",
-            "note": "Generated with the Word/PDF in this folder. Change the CV with a request in cv/input/requests.",
+            "note": "Generated with the Word/PDF in this folder. Change the CV through a request in this variant's input/requests directory.",
         }
         self._path.parent.mkdir(parents=True, exist_ok=True)
         self._path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

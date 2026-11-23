@@ -8,7 +8,7 @@ from app.application.apply_change_request import ApplyChangeRequest
 from app.application.curriculum_status import CurriculumStatus
 from app.application.generate_documents import GenerateCurriculumDocuments
 from app.application.ports import DocumentRenderer
-from app.config import CurriculumPaths
+from app.config import CurriculumPaths, DEFAULT_CV_VARIANT
 from app.domain.validation import CurriculumValidator
 from app.infrastructure.assets.certificate_store import PublicCertificateStore
 from app.infrastructure.documents.docx_renderer import DocxCurriculumRenderer
@@ -41,8 +41,8 @@ def build_renderers(paths: CurriculumPaths, stem: str = DOCUMENT_STEM) -> list[D
     ]
 
 
-def build_backend(paths: CurriculumPaths | None = None) -> CurriculumBackend:
-    paths = paths or CurriculumPaths.for_repo()
+def build_backend(paths: CurriculumPaths | None = None, variant: str = DEFAULT_CV_VARIANT) -> CurriculumBackend:
+    paths = paths or CurriculumPaths.for_repo(variant=variant)
     repository = JsonCurriculumRepository(paths.state_file)
     validator = CurriculumValidator()
     renderers = build_renderers(paths)

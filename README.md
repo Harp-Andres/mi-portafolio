@@ -11,7 +11,7 @@
 ## Qué hay aquí
 
 - **Web** (`apps/web`): hoja de vida interactiva (`/`) y demos técnicas (`/demos`). React 19, TypeScript, Tailwind v4 y Vite, publicada en GitHub Pages.
-- **Backend de la HV** (`apps/api`, Python): una sola fuente de datos. Una solicitud `.md` en `cv/input/requests/` genera la HV en Word y PDF (versiones ATS y Visual) y `cv/output/cv-data.json`, que es lo que muestra la web. La descarga y la página siempre dicen lo mismo.
+- **Backend de la HV** (`apps/api`, Python): una sola fuente de datos. Una solicitud `.md` en `cv/qa/input/requests/` genera la HV en Word y PDF (versiones ATS y Visual) y `cv/qa/output/cv-data.json`, que es lo que muestra la web. La descarga y la página siempre dicen lo mismo.
 - **Agente maestro** (`agent/`, MCP): conecta los agentes de `.github/agents/` con las skills del repo (tests, build, sincronía de la HV, PRs) desde Cursor, VS Code o Claude Code.
 - **Calidad**: tests unitarios con Vitest, E2E con Playwright (navegación, descargas, responsive en 360×780 y accesibilidad) y pytest para el backend y el agente. Todo corre en GitHub Actions antes de cada deploy.
 
@@ -36,8 +36,8 @@ pnpm dev            # http://localhost:5173/mi-portafolio/
 
 ## Actualizar la hoja de vida
 
-1. Copia `cv/input/request-template.md` a `cv/input/requests/<tema>.md` y deja solo las secciones que cambian (curso, experiencia, habilidades, dato personal…). También puedes pedírselo al agente con la herramienta MCP `cv-apply`.
-2. `pnpm cv:apply` valida la solicitud, regenera Word/PDF + `cv-data.json` y archiva la solicitud en `cv/input/processed/`.
+1. Copia `cv/qa/input/request-template.md` a `cv/qa/input/requests/<tema>.md` y deja solo las secciones que cambian (curso, experiencia, habilidades, dato personal…). También puedes pedírselo al agente con la herramienta MCP `cv-apply`.
+2. `pnpm cv:apply` valida la solicitud, regenera Word/PDF + `cv-data.json` y archiva la solicitud en `cv/qa/input/processed/`.
 3. Revisa `git diff cv/`, corre `pnpm test` y abre un PR. El merge a `main` publica la web.
 
 Formato completo: [docs/CV_MANAGEMENT/WORKFLOW.md](docs/CV_MANAGEMENT/WORKFLOW.md).
@@ -47,8 +47,8 @@ Formato completo: [docs/CV_MANAGEMENT/WORKFLOW.md](docs/CV_MANAGEMENT/WORKFLOW.m
 ```
 apps/web/        React + Vite (páginas, componentes, Vitest, Playwright)
 apps/api/        Backend Python de la HV (dominio, casos de uso, render Word/PDF, CLI y API HTTP opcional)
-packages/core/   Datos compartidos de la web: lee cv/output/cv-data.json y el catálogo de demos
-cv/              input/ (solicitudes pendientes y aplicadas) y output/ (Word/PDF + cv-data.json)
+packages/core/   Datos compartidos de la web: lee cv/qa/output/cv-data.json y el catálogo de demos
+cv/              qa/ (predeterminado para la web) y devops-qa/ (variante aislada)
 agent/           Servidor MCP maestro: interfaz, orquestador y skills
 scripts/         Scripts reutilizables (sincronía de descargas de la HV)
 docs/            Setup, contribución, flujo de la HV y API

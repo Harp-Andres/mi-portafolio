@@ -1,15 +1,45 @@
 import { useState } from 'react'
 import { Download, X } from 'lucide-react'
+import { CV_DOWNLOAD_PROFILES } from '@mportafolio/core'
+import type { CVDownloadProfile, CVDocumentFormat, CVDocumentVariant } from '@mportafolio/core'
 import { cvDocumentUrl } from '../utils/cv-document'
+
+const FORMAT_LABELS: Record<CVDocumentFormat, string> = { pdf: 'PDF', docx: 'Word' }
+const VARIANT_LABELS: Record<CVDocumentVariant, string> = { ats: 'ATS', visual: 'Visual' }
+
+const ProfileDownloads = ({ profile, onDownload }: { profile: CVDownloadProfile; onDownload: () => void }) => (
+  <section aria-labelledby={`cv-profile-${profile.id}`} className="rounded-xl border border-gray-200 p-4">
+    <div className="mb-4">
+      <h4 id={`cv-profile-${profile.id}`} className="text-lg font-bold text-gray-900">{profile.label}</h4>
+      <p className="mt-1 text-sm text-gray-600">{profile.description}</p>
+    </div>
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      {profile.documents.map((document) => {
+        const target = cvDocumentUrl(document.variant, document.format, profile.id)
+        const label = `${VARIANT_LABELS[document.variant]} ${FORMAT_LABELS[document.format]}`
+        return (
+          <a
+            key={`${profile.id}-${document.variant}-${document.format}`}
+            href={target.href}
+            download={target.filename}
+            onClick={onDownload}
+            aria-label={`Descargar hoja de vida ${profile.label} formato ${label}`}
+            className="flex min-h-11 items-center justify-between gap-3 rounded-lg border-2 border-blue-600 p-3 text-gray-900 transition-colors hover:bg-blue-50"
+          >
+            <span className="font-semibold">{label}</span>
+            <Download className="shrink-0 text-blue-600" size={20} aria-hidden="true" />
+          </a>
+        )
+      })}
+    </div>
+  </section>
+)
 
 export const CVDownloads = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const ats = cvDocumentUrl('ats')
-  const visual = cvDocumentUrl('visual')
 
   return (
     <>
-      {/* Botón para abrir modal */}
       <button
         onClick={() => setIsOpen(true)}
         aria-haspopup="dialog"
@@ -17,80 +47,43 @@ export const CVDownloads = () => {
         aria-controls="cv-download-dialog"
         className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
       >
-        <Download size={18} />
-        Hoja de Vida Descargable
+        <Download size={18} aria-hidden="true" />
+        Hojas de Vida Descargables
       </button>
 
-      {/* Modal */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div
             id="cv-download-dialog"
             role="dialog"
             aria-modal="true"
             aria-labelledby="cv-download-title"
             aria-describedby="cv-download-description"
-            className="bg-white rounded-lg p-8 max-w-lg w-full mx-4"
+            className="max-h-[calc(100vh-2rem)] w-full max-w-4xl overflow-y-auto rounded-lg bg-white p-5 sm:p-8"
           >
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6">
-              <h3 id="cv-download-title" className="text-2xl font-bold text-gray-900">Descargar Hoja de Vida</h3>
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <h3 id="cv-download-title" className="text-2xl font-bold text-gray-900">Descargar hojas de vida</h3>
               <button
                 onClick={() => setIsOpen(false)}
                 aria-label="Cerrar dialogo de descarga"
-                className="text-gray-500 hover:text-gray-900"
+                className="flex min-h-11 min-w-11 shrink-0 items-center justify-center text-gray-500 hover:text-gray-900"
               >
-                <X size={24} />
+                <X size={24} aria-hidden="true" />
               </button>
             </div>
 
-            {/* Descripción */}
-            <p id="cv-download-description" className="text-gray-600 mb-6">
-              Selecciona el formato que prefieres para descargar tu hoja de vida:
+            <p id="cv-download-description" className="mb-6 text-gray-600">
+              Elige el perfil y el formato que necesitas. Cada hoja está disponible en versión ATS y Visual.
             </p>
 
-            {/* Opciones de descarga lado a lado */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* Opción ATS */}
-              <a
-                href={ats.href}
-                download={ats.filename}
-                onClick={() => {
-                  setTimeout(() => setIsOpen(false), 0)
-                }}
-                aria-label="Descargar hoja de vida en formato ATS PDF"
-                className="flex flex-col items-center gap-3 p-4 border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
-              >
-                <Download className="text-blue-600" size={32} />
-                <div className="text-center">
-                  <p className="font-bold text-gray-900">[ATS]</p>
-                  <p className="text-sm text-gray-600">Formato optimizado</p>
-                  <p className="text-xs text-gray-500">para sistemas ATS</p>
-                </div>
-              </a>
-
-              {/* Opción Visual */}
-              <a
-                href={visual.href}
-                download={visual.filename}
-                onClick={() => {
-                  setTimeout(() => setIsOpen(false), 0)
-                }}
-                aria-label="Descargar hoja de vida en formato visual PDF"
-                className="flex flex-col items-center gap-3 p-4 border-2 border-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
-              >
-                <Download className="text-purple-600" size={32} />
-                <div className="text-center">
-                  <p className="font-bold text-gray-900">[Visual]</p>
-                  <p className="text-sm text-gray-600">Diseño elegante</p>
-                  <p className="text-xs text-gray-500">con colores y formato</p>
-                </div>
-              </a>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {CV_DOWNLOAD_PROFILES.map((profile) => (
+                <ProfileDownloads key={profile.id} profile={profile} onDownload={() => setIsOpen(false)} />
+              ))}
             </div>
 
-            {/* Footer */}
-            <p className="text-xs text-gray-500 mt-6 text-center">
-              Los archivos se descargarán en formato PDF
+            <p className="mt-6 text-center text-xs text-gray-500">
+              Formatos disponibles: PDF y Word, según el documento publicado por el backend.
             </p>
           </div>
         </div>
